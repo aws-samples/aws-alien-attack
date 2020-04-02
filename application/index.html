@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+    <link rel="icon" type="image/png" href="./images/favicon.ico">
+    <meta content="utf-8" http-equiv="encoding">
+    <link rel="stylesheet" type="text/css" href="./resources/css/infopages.css">
+    <title>AWS Alien Attack</title>
+</head>
+
+<body>
+    <br><br>
+    <img src="./images/awsalienattack.png" align="middle"></img>
+    <h1>A serverless adventure</h1>
+    <br>
+    <br>
+    <p>Based on the work done by <a href="https://github.com/dwmkerr/spaceinvaders">Dave Kerr</a>, AWS Alien Attack is a <a href="https://aws.amazon.com/serverless/">serverless</a> application developed to support our partners in discussions, learning, and tasting
+        different
+        AWS services.</p>
+    <p>The game is in fact an event source, which produces data that needs to be ingested, processed, stored, and
+        analyzed. In practice, you can use the application to exercise your understanding about AWS services and to
+        explore the different serverless architectures for games, IoT, financial transactions, and more.</p>
+    <p>While playing, each player will be sending a payload of approximately <b>120 bytes</b>, at an average rate of
+        <b>53 events/s</b> in playing time. We wanted to have multiple players playing together, and to give it a
+        competition flavor, and be as cheap as possible, without hurting the principles of a <a href="https://aws.amazon.com/architecture/well-architected/">well-architected</a>
+        design.</p>
+    <p>With this application we're inviting you to think about:</p>
+    <ul>
+      <li>What are the options that I have for <span class="boldText">INGESTING</span>
+        data?</li>
+      <li>After the data is ingested, what are the options for <span class="boldText">PROCESSING</span>?</li>
+      <li>For <span class="boldText">STORING</span> and <span class="boldText">QUERYING</span>,
+        what are the best options? Should we use different sources for game-time
+        and after game-time?</li>
+      <li>If I want real-time processing, what means <span class="boldText">REAL-TIME</span>
+        for me? What services and architectural strategies should I use for
+        that?</li>
+      <li>What are the <span class="boldText">COSTS</span> for the different
+        choices?</li>
+      <li>Are there <span class="boldText">SECURITY</span> implications of my
+        choice?</li>
+      <li>Which one is the best for <b>my use case</b>, and for <b>my project
+          constraints?</b></li>
+    </ul>
+    <p>The application will be used to support the deliverables of workshops and
+      bootcamps for AWS partners and AWS-attached educational programs.</p>
+    <p>This example DOES NOT apply the best practices for development, and the
+      architecture was designed considering some assumptions. The idea is to use
+      this code and architecture as a starting poing for discussion, evolution,
+      study, and training.</p>
+    <p>Fork it, and <a href="https://aws.amazon.com/buildon/">#GoBuild</a> !!!</p>
+    <div class="btnGroup"> <input class="button" value="How to play" onclick="window.location='./pages/howtoplay.html'"
+type="button">
+      <input class="button" value="Let's play" onclick="window.location='./game/index.html'"
+type="button">
+    </div>
+  </body>
+</html>

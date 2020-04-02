@@ -1,0 +1,98 @@
+body {
+    font-family: "Courier New";
+    background-color: black;
+    color: white;
+}
+
+img {
+    display: block;
+    max-width: 40%;
+    max-height: 40%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+p {
+    margin-left: 3%;
+    margin-right: 3%;
+    text-indent: 35px;
+}
+
+ul {
+    margin-left: 5%;
+    margin-right: 5%
+}
+
+ol {
+    margin-left: 5%;
+    margin-right: 5%;
+}
+
+li {
+    margin-bottom: 1%;
+}
+
+h1 {
+    margin: 0%;
+    text-align: center;
+}
+
+h2 {
+    margin: 2%;
+    text-align: center
+}
+
+h3 {
+    margin: 1%;
+    text-align: center
+}
+
+.boldText {
+    color: #FF9900;
+    font-weight: bold;
+}
+
+a:link {
+    text-decoration: none;
+    color: #FF9900;
+}
+
+a:visited {
+    text-decoration: none;
+    color: #FF9900;
+}
+
+a:hover {
+    text-decoration: none;
+    color: #ff5555
+}
+
+.btnGroup {
+    width: 300px;
+    align-content: center;
+    margin: auto;
+}
+
+.btnGroup input {
+    background-color: #FF9900;
+    /* Green */
+    border: none;
+    color: white;
+    padding: 16px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    -webkit-transition-duration: 0.4s;
+    /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.btnGroup input:hover {
+    background-color: #ff5555;
+    color: white;
+}

@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <link rel="stylesheet" type="text/css" href="./css/typeography.css">
+    <link rel="stylesheet" type="text/css" href="./css/scoreboard.css">
+    <link rel="icon" type="image/png" href="./../images/favicon.ico">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Alien Attack Scoreboard</title>
+</head>
+
+<body>
+    <h1>Alien Attack Scoreboard</h1>
+    <div id='TimerDiv' hidden>
+        <p><label>Game Countdown </label></p>
+        <p><label id='lbl_countdown'>00:00</label></p>
+    </div>
+    <div id='LoginDiv'>
+        <fieldset>
+            <h3>Scoreboard Manager</h3>
+            <label>Username:</label>
+            <input type='text' id='txtUsername' name='txtUsername' />
+            <p></p>
+            <label>Password:</label>
+            <input type='password' id='txtPassword' name='txtUsername' /><button type='button' onclick='login();'>Login</button>
+        </fieldset>
+    </div>
+    <div id='SessionNameDiv'>
+        <label>SESSION NAME:</label>
+        <input type='text' id='txtSessionName' name='SessionName' /> (If not provided, will create one. Date-time will
+        be added too)
+        <p></p>
+    </div>
+    <div id='GameTypeSelectionDiv'>
+        <fieldset id='fsGameTypeSelection'>
+            <legend>Game type</legend>
+            <div>
+                <input type='radio' id='rb_multipletrials' internalId='MULTIPLE_TRIALS' name='fsGameTypeSelection'
+                    checked />
+                <label for='rb_multipletrials'>Multiple trials</label>
+            </div>
+            <div>
+                <input type='radio' id='rb_oneTrial' internalId='SINGLE_TRIAL' name='fsGameTypeSelection' />
+                <label for='rb_oneTrial'>Single trial</label>
+            </div>
+            <div>
+                <input type='radio' id='rb_timeConstrained' internalId='TIME_CONSTRAINED' name='fsGameTypeSelection' />
+                <label for='rb_timeConstrained'>Time-Constrained for </label>
+                <input type='number' id='txt_time' name='txt_time' value='5' /> minutes (minimum 1, maximum 30)
+            </div>
+            <p></p>
+            <div>
+                <input type='checkbox' id='ck_Synchronized' name='ck_Synchronized' />Synchronized (Only applies for
+                'One Trial' and 'Time-Constrained')<br>
+            </div>
+        </fieldset>
+    </div>
+    <div id='CurrentSessionDetailsDiv'>
+        <p>
+            <h4><label id='lblSessionState'>OPENED</label> session: <label id='lblSessionName'>2018-10-26T15:41:53</label>
+                - <label id='lblSessionType'>SINGLE-TRIAL</label></h4>
+            Session started in <label id='lblSessionStartTST'></label> and finished in <label id='lblSessionFinishTST'></label>
+        </p>
+    </div>
+    <div id='StartStopButtons'>
+        <button type='button' id='btnStartGame' class='button' onclick='startGame();'>START game</button>
+        <button type='button' id='btnSyncGame' class='button' onclick='syncGame()'>Sync Game</button>
+        <button type='button' id='btnStopGame' class='button' onclick='stopGame();'>STOP game</button>
+    </div>
+    <div id='scoreboard' style="overflow-y: scroll; overflow-x: auto;" hidden></div>
+    </div>
+    <script type='text/javascript' src='./../resources/libs/jsbn.js'></script>
+    <script type='text/javascript' src='./../resources/libs/jsbn2.js'></script>
+    <script src='./../resources/libs/websocketAG.js'></script>
+    <script src='./../resources/libs/sjcl.js'></script>
+    <script src='./../resources/libs/moment.min.js'></script>
+    <script src='./../resources/libs/aws-sdk.min.js'></script>
+    <script src='./../resources/libs/aws-cognito-sdk.min.js'></script>
+    <script src='./../resources/libs/amazon-cognito-identity.min.js'></script>
+    <script src='./../resources/js/gameutils.js'></script>
+    <script src='./../resources/js/awsconfig.js'></script>
+    <script src='./../resources/js/awsfacade.js'></script>
+    <script src='./../resources/js/modal.js'></script>
+    <script src='./js/scoreboard.js'></script>
+    <script src='./js/scoreboard.kinesisinherited.js'></script>
+    <script>
+        Scoreboard = new ScoreboardKinesis(document);
+
+        clearGameTypeSelectionGroup = function () {
+            let gameType = document.getElementsByName('fsGameTypeSelection');
+            gameType.readOnly = false;
+            let iterator = gameType.keys();
+            let itemPtr = null;
+            while (!(itemPtr = iterator.next()).done) {
+                gameType.item(itemPtr.value).checked = false;
+            };
+        }
+
+        updateSessionDetails = function (session) {
+            if (session) {
+                document.getElementById('lblSessionState').innerHTML = (session.ClosingTime ? 'CLOSED' : 'OPENED');
+                document.getElementById('lblSessionName').innerHTML = session.SessionId;
+                document.getElementById('lblSessionType').innerHTML = session.GameType;
+                document.getElementById('lblSessionStartTST').innerHTML = session.OpeningTime;
+                document.getElementById('lblSessionFinishTST').innerHTML = (session.ClosingTime ? session.ClosingTime : '(still running)');
+            }
+        };
+
+        showAll = function () {
+            document.getElementById('TimerDiv').style.display = 'block';
+            document.getElementById('LoginDiv').style.display = 'block';
+            document.getElementById('SessionNameDiv').style.display = 'block';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'block';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('txtUsername').value = '';
+            document.getElementById('txtPassword').value = '';
+            document.getElementById('txtSessionName').value = '';
+            document.getElementById('txtSessionName').readOnly = false;
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'block';
+        };
+
+        displayPageAtInitialState = function () {
+            document.getElementById('TimerDiv').style.display = 'none';
+            document.getElementById('LoginDiv').style.display = 'block';
+            document.getElementById('SessionNameDiv').style.display = 'none';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'none';
+            document.getElementById('StartStopButtons').style.display = 'none';
+            document.getElementById('scoreboard').style.display = 'none';
+            document.getElementById('txtUsername').value = '';
+            document.getElementById('txtPassword').value = '';
+            document.getElementById('txtSessionName').value = '';
+            document.getElementById('txtSessionName').readOnly = false;
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'none';
+        }
+        displayPageAtInitialState();
+
+        displayPageForExistingSession = function (currentSession) {
+            if (currentSession.GameType == 'TIME_CONSTRAINED')
+                document.getElementById('TimerDiv').style.display = 'block';
+            else document.getElementById('TimerDiv').style.display = 'none';
+
+            document.getElementById('LoginDiv').style.display = 'none';
+            document.getElementById('SessionNameDiv').style.display = 'none';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'none';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'block';
+            document.getElementById('btnStartGame').disabled = true;
+            document.getElementById('btnStopGame').disabled = false;
+            updateSessionDetails(currentSession);
+        }
+
+        displayPageForCreatingNewSession = function () {
+            document.getElementById('TimerDiv').style.display = 'none';
+            document.getElementById('SessionNameDiv').style.display = 'block';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'block';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'none';
+            document.getElementById('txtSessionName').value = '';
+            document.getElementById('txtSessionName').readOnly = false;
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'none';
+            document.getElementById('btnStartGame').disabled = false;
+            document.getElementById('btnStopGame').disabled = true;
+            document.getElementById('btnSyncGame').disabled = true;
+            document.getElementById('fsGameTypeSelection').disabled = false;
+            clearGameTypeSelectionGroup();
+        }
+
+        displayPageAfterLogin = function (sessionData) {
+            document.getElementById('txtUsername').value = '';
+            document.getElementById('txtPassword').value = '';
+            document.getElementById('txtSessionName').value = '';
+            document.getElementById('LoginDiv').style.display = 'none';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            if (sessionData && !sessionData.ClosingTime) displayPageForExistingSession(sessionData);
+            else displayPageForCreatingNewSession();
+        }
+
+        displayPageAfterGameStart = function () {
+            document.getElementById('TimerDiv').style.display = 'none';
+            document.getElementById('LoginDiv').style.display = 'none';
+            document.getElementById('SessionNameDiv').style.display = 'block';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'none';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('txtSessionName').readOnly = true;
+            document.getElementById('btnStartGame').disabled = true;
+            document.getElementById('btnStopGame').disabled = false;
+            document.getElementById('btnSyncGame').disabled = true;
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'none';
+        }
+
+        displayPageAfterGameStartSynchro = function () {
+            document.getElementById('TimerDiv').style.display = 'none';
+            document.getElementById('LoginDiv').style.display = 'none';
+            document.getElementById('SessionNameDiv').style.display = 'block';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'none';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('txtSessionName').readOnly = true;
+            document.getElementById('btnStartGame').disabled = true;
+            document.getElementById('btnStopGame').disabled = false;
+            document.getElementById('btnSyncGame').disabled = false;
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'none';
+        }
+
+        displayPageAtGameEnding = function () {
+            document.getElementById('TimerDiv').style.display = 'none';
+            document.getElementById('LoginDiv').style.display = 'none';
+            document.getElementById('SessionNameDiv').style.display = 'block';
+            document.getElementById('GameTypeSelectionDiv').style.display = 'block';
+            document.getElementById('StartStopButtons').style.display = 'block';
+            document.getElementById('scoreboard').style.display = 'block';
+            document.getElementById('txtSessionName').readOnly = false;
+            document.getElementById('txtSessionName').value = '';
+            document.getElementById('btnStartGame').disabled = false;
+            document.getElementById('btnStopGame').disabled = true;
+            document.getElementById('btnSyncGame').disabled = true;
+            // Update session details
+            document.getElementById('CurrentSessionDetailsDiv').style.display = 'block';
+            let currentSession = Scoreboard.getCurrentSession()
+            document.getElementById('lblSessionName').innerHTML = currentSession.SessionId;
+            document.getElementById('lblSessionState').innerHTML = 'CLOSED';
+            document.getElementById('lblSessionType').innerHTML = currentSession.GameType;
+            clearGameTypeSelectionGroup();
+            updateSessionDetails(currentSession);
+        }
+
+        updateSessionFields = function (sessionData) {
+            document.getElementById('txtSessionName').value = sessionData.SessionId;
+            let gameType = document.getElementsByName('fsGameTypeSelection');
+            let iterator = gameType.keys();
+            let itemPtr = null;
+            while (!(itemPtr = iterator.next()).done) {
+                if (gameType.item(itemPtr.value).attributes.internalid.value == sessionData.GameType) gameType.item(itemPtr.value).checked = true;
+            };
+        }
+
+
+        login = function () {
+            var username = document.getElementById('txtUsername').value;
+            var password = document.getElementById('txtPassword').value;
+            Scoreboard.login(username, password, function (err, username) {
+                if (err) alert(err);
+                else {
+                    let sessionData = Scoreboard.getCurrentSession();
+                    displayPageAfterLogin(sessionData);
+                    alert('Welcome ' + username);
+                }
+            })
+        }
+
+        getGameType = function () {
+            var gameType = document.getElementsByName('fsGameTypeSelection');
+            var iterator = gameType.keys();
+            var itemPtr = null;
+            while (!(itemPtr = iterator.next()).done) {
+                if (gameType.item(itemPtr.value).checked) return gameType.item(itemPtr.value);
+            };
+        }
+
+        canStart = function () {
+            var gameType = getGameType();
+            if (gameType)
+                switch (gameType.id) {
+                    case 'rb_multipletrials':
+                        var synchonizedField = document.getElementById('ck_Synchronized');
+                        return { GameType: gameType.attributes.internalid.value };
+                        break;
+                    case 'rb_oneTrial':
+                        var synchonizedField = document.getElementById('ck_Synchronized');
+                        return { GameType: gameType.attributes.internalid.value, Synchronized: synchonizedField.checked };
+                        break;
+                    case 'rb_timeConstrained':
+                        var timeField = document.getElementById('txt_time');
+                        var duration = timeField.value.trim();
+                        if (!duration || parseInt(duration) < 1 || parseInt(duration) > 30) {
+                            alert('Invalid duration for time-constrained event. Must be >= 1 and <= 30');
+                            timeField.focus();
+                            return null;
+                        }
+                        else {
+                            var synchonizedField = document.getElementById('ck_Synchronized');
+                            return { GameType: gameType.attributes.internalid.value, TimeoutInMinutes: parseInt(duration), Synchronized: synchonizedField.checked };
+                        }
+                        break;
+                    default: return false;
+                }
+        }
+
+        startGame = function () {
+            var gameTypeDetails = null;
+            if (gameTypeDetails = canStart()) {
+                var sessionName = document.getElementById('txtSessionName').value.trim();
+                var d = (new Date()).toJSON();
+                if (!sessionName) sessionName = d.substring(0, 19);
+                else sessionName = sessionName + d.substring(2, d.length - 5).replace(/-/g, '').replace(/:/g, '');
+                gameTypeDetails.SessionId = sessionName;
+                document.getElementById('txtSessionName').value = sessionName;
+                if (gameTypeDetails.Synchronized) {
+                    displayPageAfterGameStartSynchro();
+                    Scoreboard.start(gameTypeDetails, function(err, data) {
+                        document.getElementById('btnSyncGame').disabled = !data;
+                    });
+                } else {
+                    displayPageAfterGameStart();
+                    Scoreboard.start(gameTypeDetails);
+                }
+            } else alert('Please choose the game type');
+        };
+
+        syncGame = function () {
+            Scoreboard.sync();
+            displayPageAfterGameStart();
+        }
+
+        stopGame = function () {
+            Scoreboard.stop();
+            displayPageAtGameEnding(Scoreboard.getCurrentSession());
+        }
+    </script>
+</body>
+
+</html>

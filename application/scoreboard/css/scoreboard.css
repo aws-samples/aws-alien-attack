@@ -1,0 +1,28 @@
+#scoreboardtable {
+    font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 20px;
+}
+
+#scoreboardtable td, #scoreboardtable th {
+    border: 1px solid #ddd; 
+    padding: 10pt; 
+}
+
+#scoreboardtable th {
+    padding-top: 12px;
+    padding-bottom: 12px;
+    text-align: left;
+    background-color: #FF9900;
+    color: white;
+}
+
+#scoreboardtable td {
+    font-size: 110%;
+    font-weight: bolder
+}
+
+#scoreboardtable tr:nth-child(even){background-color: #f2f2f2;}
+
+#scoreboardtable tr:hover {background-color: #ddd;}

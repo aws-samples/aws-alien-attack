@@ -1,0 +1,26 @@
+####################################################
+#
+# HOW TO TEST THE ALIEN ATTACK APIs USING CURL
+#
+####################################################
+
+1. Login into to Game or Scoreboard application.
+
+2. Retrieve the JWTToken
+   2.1. Go to the Console of your browser
+   2.2. Retrieve the Java Web Token (JWT) and save it on a helper text file.
+   2.2.1. If you are using the Game application, type in the console: game.awsfacade.cognitoFacade.sessionData.idToken.jwtToken
+   2.2.2. If you are using the Scoreboard application, type in the console: Scoreboard.awsfacade.cognitoFacade.sessionData.idToken.jwtToken
+
+3. Execute the API using curl and passing the parameters to your API. 
+
+Example: 
+Supposing that your token is 1a2b3c, for a GET you can use
+curl --header "Authorization : 1a2b3c"  https://myapiid.execute-api.us-west-2.amazonaws.com/prod/v1/topxstatistics?sessionId=TheTestSession
+
+For a post you should add the --data parameter to the curl command and, well, some other things. Try it and check what you can learn.
+
+You can also test the API with tools like POSTMAN.
+
+
+

@@ -1,0 +1,10 @@
+*.d.ts
+infrastructure/cdk/bin/*.js
+infrastructure/cdk/lib/*.js
+infrastructure/cdk/lib/layer/*.js
+infrastructure/cdk/lib/util/*.js
+infrastructure/cdk/cdk.out/
+infrastructure/cdk/node_modules/
+infrastructure/cdk/package-lock.json
+*.yaml
+.DS_Store
