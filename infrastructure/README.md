@@ -78,7 +78,7 @@ The cost estimate considers the environment deployed in us-east-1, and prices co
 
 Check more details about the services/products used by expanding this section below.
 
-By the way, would you like to confirm if that's the real cost? Want to do some math yourself?
+By the way, would you like to confirm if that's the real cost? Want to do some math yourself? Or do you want to run the "Alien Attack Pricing Workshop" ?
 
 <details><summary>List of used services
 </summary>
@@ -99,7 +99,7 @@ By the way, would you like to confirm if that's the real cost? Want to do some m
 
 # How to tear down the environment
 
-if you have followed the workshop instructions on the [workshop website](https://alienattack.workshop.aws), there you will going to find guidance on how to tear down the environment.  
+If you have followed the workshop instructions on the [workshop website](https://alienattack.workshop.aws), there you are going to find guidance on how to tear down the environment.  
 
 If you have done the deployment by yourself, be sure of undoing the changes that you have done by hand on your environment, and then run the following command. It will destroy your enviroment.
 

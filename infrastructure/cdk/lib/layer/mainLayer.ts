@@ -115,7 +115,7 @@ export class MainLayer extends ResourceAwareStack {
       new CfnOutput(this, "url", {
         description : "Cloudfront domain for the website (Cloudfront distribution)",
         value : cdnLayer.getResource("cdndomain"),
-        exportName : "url"
+        exportName : this.properties.getApplicationName().toLocaleLowerCase()+":url"
       }).node.addDependency(cdnLayer);
     }  
   }
