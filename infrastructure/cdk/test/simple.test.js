@@ -1,0 +1,28 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+require("@aws-cdk/assert/jest");
+const configLayer = require("./../lib/layer/configurationLayer");
+const resourceawarestack_1 = require("./../lib/resourceawarestack");
+const nrta_1 = require("./../lib/nrta");
+/**
+ * These tests are built using https://jestjs.io/
+ *
+ * To prepare the enviroment, you need to:
+ * npm install --save-dev jest @types/jest @aws-cdk/assert
+ */
+/**
+ * This simple test validates the Config layer (where Systems Manager parameters are defined),
+ * so checking if the Cloudformation Template is generated properly
+ *
+ */
+test('Validates ConfigurationLayer creation (Systems Manager Parameters)', () => {
+    const stack = new resourceawarestack_1.ResourceAwareStack();
+    const props = new nrta_1.NRTAProps();
+    props.setApplicationName('TEST');
+    let ssmParameters = new Map();
+    ssmParameters.set("parameter1", "value1");
+    props.addParameter("ssmParameters", ssmParameters);
+    new configLayer.ConfigurationLayer(stack, 'ConfigLayer', props);
+    expect(stack).toHaveResource('AWS::SSM::Parameter');
+});
+//# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoic2ltcGxlLnRlc3QuanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyJzaW1wbGUudGVzdC50cyJdLCJuYW1lcyI6W10sIm1hcHBpbmdzIjoiOztBQUFBLGdDQUE4QjtBQUM5QixpRUFBZ0U7QUFDaEUsb0VBQWdFO0FBQ2hFLHdDQUF5QztBQUV6Qzs7Ozs7R0FLRztBQUdIOzs7O0dBSUc7QUFDSCxJQUFJLENBQUMsb0VBQW9FLEVBQUUsR0FBRyxFQUFFO0lBQzVFLE1BQU0sS0FBSyxHQUFHLElBQUksdUNBQWtCLEVBQUUsQ0FBQztJQUN2QyxNQUFNLEtBQUssR0FBRyxJQUFJLGdCQUFTLEVBQUUsQ0FBQztJQUM5QixLQUFLLENBQUMsa0JBQWtCLENBQUMsTUFBTSxDQUFDLENBQUM7SUFDakMsSUFBSSxhQUFhLEdBQUcsSUFBSSxHQUFHLEVBQWtCLENBQUM7SUFDOUMsYUFBYSxDQUFDLEdBQUcsQ0FBQyxZQUFZLEVBQUUsUUFBUSxDQUFDLENBQUM7SUFDMUMsS0FBSyxDQUFDLFlBQVksQ0FBQyxlQUFlLEVBQUMsYUFBYSxDQUFDLENBQUM7SUFDbEQsSUFBSSxXQUFXLENBQUMsa0JBQWtCLENBQUMsS0FBSyxFQUFDLGFBQWEsRUFBQyxLQUFLLENBQUMsQ0FBQztJQUM5RCxNQUFNLENBQUMsS0FBSyxDQUFDLENBQUMsY0FBYyxDQUFDLHFCQUFxQixDQUFDLENBQUM7QUFDeEQsQ0FBQyxDQUFDLENBQUEiLCJzb3VyY2VzQ29udGVudCI6WyJpbXBvcnQgJ0Bhd3MtY2RrL2Fzc2VydC9qZXN0JztcbmltcG9ydCAqIGFzIGNvbmZpZ0xheWVyIGZyb20gJy4vLi4vbGliL2xheWVyL2NvbmZpZ3VyYXRpb25MYXllcidcbmltcG9ydCB7IFJlc291cmNlQXdhcmVTdGFjayB9IGZyb20gJy4vLi4vbGliL3Jlc291cmNlYXdhcmVzdGFjaydcbmltcG9ydCB7IE5SVEFQcm9wcyB9IGZyb20gJy4vLi4vbGliL25ydGEnXG5cbi8qKlxuICogVGhlc2UgdGVzdHMgYXJlIGJ1aWx0IHVzaW5nIGh0dHBzOi8vamVzdGpzLmlvL1xuICogXG4gKiBUbyBwcmVwYXJlIHRoZSBlbnZpcm9tZW50LCB5b3UgbmVlZCB0bzpcbiAqIG5wbSBpbnN0YWxsIC0tc2F2ZS1kZXYgamVzdCBAdHlwZXMvamVzdCBAYXdzLWNkay9hc3NlcnRcbiAqL1xuXG5cbi8qKlxuICogVGhpcyBzaW1wbGUgdGVzdCB2YWxpZGF0ZXMgdGhlIENvbmZpZyBsYXllciAod2hlcmUgU3lzdGVtcyBNYW5hZ2VyIHBhcmFtZXRlcnMgYXJlIGRlZmluZWQpLFxuICogc28gY2hlY2tpbmcgaWYgdGhlIENsb3VkZm9ybWF0aW9uIFRlbXBsYXRlIGlzIGdlbmVyYXRlZCBwcm9wZXJseVxuICogXG4gKi9cbnRlc3QoJ1ZhbGlkYXRlcyBDb25maWd1cmF0aW9uTGF5ZXIgY3JlYXRpb24gKFN5c3RlbXMgTWFuYWdlciBQYXJhbWV0ZXJzKScsICgpID0+IHtcbiAgICBjb25zdCBzdGFjayA9IG5ldyBSZXNvdXJjZUF3YXJlU3RhY2soKTtcbiAgICBjb25zdCBwcm9wcyA9IG5ldyBOUlRBUHJvcHMoKTtcbiAgICBwcm9wcy5zZXRBcHBsaWNhdGlvbk5hbWUoJ1RFU1QnKTtcbiAgICBsZXQgc3NtUGFyYW1ldGVycyA9IG5ldyBNYXA8c3RyaW5nLCBzdHJpbmc+KCk7XG4gICAgc3NtUGFyYW1ldGVycy5zZXQoXCJwYXJhbWV0ZXIxXCIsIFwidmFsdWUxXCIpO1xuICAgIHByb3BzLmFkZFBhcmFtZXRlcihcInNzbVBhcmFtZXRlcnNcIixzc21QYXJhbWV0ZXJzKTtcbiAgICBuZXcgY29uZmlnTGF5ZXIuQ29uZmlndXJhdGlvbkxheWVyKHN0YWNrLCdDb25maWdMYXllcicscHJvcHMpO1xuICAgIGV4cGVjdChzdGFjaykudG9IYXZlUmVzb3VyY2UoJ0FXUzo6U1NNOjpQYXJhbWV0ZXInKTtcbn0pIl19
