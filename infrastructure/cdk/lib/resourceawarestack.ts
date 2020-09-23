@@ -134,12 +134,13 @@ export class ParameterAwareProps implements IParameterAwareProps {
 export class ResourceAwareStack extends Stack implements IResourceAware {
 
     protected resources : Map<string,any>;
-    protected scope : App;
+    protected scope: Construct | undefined;
     protected properties : IParameterAwareProps;
 
-    constructor(parent : App, name: string, props?: IParameterAwareProps) {
+    constructor(parent?: Construct, name?: string, props?: IParameterAwareProps) {
         super(parent,name,props);
-        this.scope = parent;
+        if (this.scope)
+            this.scope = parent;
         if (!this.properties) this.properties = new ParameterAwareProps(props);
         if (!this.properties.accountId) this.properties.accountId = this.account;
         if (!this.properties.region) this.properties.region = this.region;
