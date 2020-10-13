@@ -452,7 +452,7 @@ function RegisterState() {
     this.modal = new Modal(document.getElementById("modalDialog"));
     var modalDialogString =
         `<h2>AlienAttack:REGISTER</h2>
-        <label>Nickname (username)*</label>
+        <label>Nickname* (username; DO NOT USE YOUR EMAIL)</label>
         <input type="text" name="nickname" id="registerDiv.nickname" />   
         <label>E-mail*</label>
         <input type="text" name="email" id="registerDiv.email" />
