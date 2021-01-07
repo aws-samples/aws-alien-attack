@@ -108,11 +108,11 @@ function Game() {
 
     //  All state is in the variables below.
     this.username = null;
-    this.lives = 3;
     this.width = 0;
     this.height = 0;
     this.gameBounds = { left: 0, top: 0, right: 0, bottom: 0 };
     this.intervalId = 0;
+    this.lives = 3;    
     this.score = 0;
     this.level = 1;
     this.shots = 0;
@@ -138,6 +138,13 @@ function Game() {
     this.userWantsToRegister = true; //let's replace previous variable
     this.userWantsToLogin = true; //let's replace previous variable
     window.addEventListener("unload", this.onbeforeunload.bind(this));
+}
+
+Game.prototype.resetGamer = () => {
+    game.lives = 3;    
+    game.score = 0;
+    game.level = 1;
+    game.shots = 0;
 }
 
 Game.prototype.onbeforeunload = (event) => {
@@ -933,9 +940,12 @@ WelcomeState.prototype.draw = function (game, dt, ctx) {
 WelcomeState.prototype.keyDown = function (game, keyCode) {
     if ((keyCode == 32) && this.respondToSpacebarPressed) {
         //  Space starts the game.
+        game.resetGamer();
+        /*
         game.level = 1;
         game.score = 0;
         game.lives = 3;
+        */
         game.moveToState(new LevelIntroState(game.level));
     }
 };
@@ -945,9 +955,12 @@ WelcomeState.prototype.onMessageFromWebSocket = function (message) {
     if (message && message.toUpperCase() == 'START') {
         this.wsclient.disconnect();
         //  Space starts the game.
+        game.resetGamer();
+        /*
         game.level = 1;
         game.score = 0;
         game.lives = 3;
+        */
         game.moveToState(new LevelIntroState(game.level));
     } else {
         console.log('Strange message from WS:', message);
@@ -969,6 +982,7 @@ function GameOverState() {
         var keycode = e.which || window.event.keycode;
         if(keycode == 13 /* ENTER */) {
             window.removeEventListener("keydown",self.moveToWaitForSessionState);
+            game.resetGamer();
             game.moveToState(new WaitForSessionState()); 
         }
     };
