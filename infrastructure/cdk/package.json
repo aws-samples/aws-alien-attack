@@ -1,6 +1,8 @@
 {
   "name": "alienattack.workshop",
-  "version": "0.1.0",
+  "version": "1.0.0",
+  "description": "The foundational code supporting the AWS Alien Attack",
+  "license": "MIT-0",
   "bin": {
     "alienattack.workshop": "bin/cdk.js"
   },
@@ -15,8 +17,8 @@
     "@types/jest": "^26.0.14",
     "aws-cdk": "^1.83.0",
     "jest": "^26.4.2",
-    "ts-node": "^8.1.0",
-    "typescript": "^3.7.2"
+    "ts-node": "^9.0.0",
+    "typescript": "^3.9.7"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -42,6 +44,6 @@
     "@aws-cdk/core": "^1.83.0",
     "@types/node": "^12.7.3",
     "aws-sdk": "^2.521.0",
-    "uuid": "^3.3.3"
+    "uuid": "^8.3.2"
   }
 }
