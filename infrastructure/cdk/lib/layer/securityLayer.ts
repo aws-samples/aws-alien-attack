@@ -8,7 +8,7 @@ import { Role, Effect, PolicyStatement, FederatedPrincipal, ServicePrincipal, Po
 import Cognito = require('@aws-cdk/aws-cognito');
 import Cfn = require('@aws-cdk/aws-cloudformation');
 
-const uuidv3 = require('uuid/v3');
+const uuid = require('uuid/v4');
 
 const path = require('path');
 
@@ -86,9 +86,9 @@ export class SecurityLayer extends ResourceAwareConstruct {
         let genFunctionId = this.properties.getApplicationName() + 'SimpleUserPoolGenFn';
         const generatingFunction = new SingletonFunction(this, genFunctionId, {
             // To avoid collisions when running the on the same environment
-            // many times, we're using uuidv3 to stick to some 'aleatory' 
+            // many times, we're using uuid to stick to some 'aleatory' 
             // uuid related to the genFunctionId
-            uuid: uuidv3(genFunctionId, CDKNAMESPACE)
+            uuid: uuid(genFunctionId, CDKNAMESPACE)
             , code: Code.asset(path.join(lambdasLocation, 'simpleUserPool'))
             , description: "Generates the UserPool using configuration not available on CDK"
             , handler: 'index.handler'
