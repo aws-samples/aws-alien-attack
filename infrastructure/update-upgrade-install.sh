@@ -18,7 +18,7 @@ echo Installing Typescript
 npm install -g typescript@3.9.7
 echo --
 echo Installing CDK
-npm install -g aws-cdk@1.83.0
+npm install -g aws-cdk@1.84.0
 echo --
 echo Bootstraping CDK
 account=$(aws sts get-caller-identity --output text --query 'Account')
