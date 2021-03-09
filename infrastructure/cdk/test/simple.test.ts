@@ -45,7 +45,7 @@ test('SecurityLayer validation', () => {
             'AWS::IAM::Role',
             'AWS::IAM::Policy',
             'AWS::Lambda::Function',
-            'AWS::CloudFormation::CustomResource',
+            'AWS::Cognito::UserPool',
             'AWS::Cognito::UserPoolClient',
             'AWS::Lambda::Permission',
             'AWS::Cognito::IdentityPool',
