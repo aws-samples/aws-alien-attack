@@ -6,27 +6,16 @@ import { Function, SingletonFunction, Code, Runtime, CfnPermission } from '@aws-
 import { Role, Effect, PolicyStatement, FederatedPrincipal, ServicePrincipal, Policy } from '@aws-cdk/aws-iam';
 
 import Cognito = require('@aws-cdk/aws-cognito');
-import Cfn = require('@aws-cdk/aws-cloudformation');
-
-const uuid = require('uuid/v4');
 
 const path = require('path');
 
 const lambdasLocation = path.join(__dirname, '..', '..', 'lambdas');
-export interface SimpleUserPool {
-    userPoolId: string,
-    userPoolUrl: string,
-    userPoolArn: string,
-    userPoolProviderName: string,
-    userPoolName: string
-}
 
 export class SecurityLayer extends ResourceAwareConstruct {
 
-    userPool: SimpleUserPool;
-    simpleUserPool: Cfn.CustomResource;
+    userPool: Cognito.UserPool;
     identityPool: Cognito.CfnIdentityPool;
-    userPoolClient: Cognito.CfnUserPoolClient;
+    userPoolClient: Cognito.UserPoolClient;
     playersRole: Role;
     managersRole: Role;
     unauthenticatedRole: Role;
@@ -53,7 +42,7 @@ export class SecurityLayer extends ResourceAwareConstruct {
     }
 
     getUserPoolClientId(): string {
-        return this.userPoolClient.ref;
+        return this.userPoolClient.userPoolClientId;
     }
 
     getIdentityPool() {
@@ -66,93 +55,63 @@ export class SecurityLayer extends ResourceAwareConstruct {
 
     constructor(parent: Construct, name: string, props: IParameterAwareProps) {
         super(parent, name, props);
-        this.userPool = {
-            userPoolId: '',
-            userPoolUrl: '',
-            userPoolArn: '',
-            userPoolProviderName: '',
-            userPoolName: '',
-        }
         this.creatPostRegistrationLambdaTrigger();
         this.createUserPool();
-        this.createUserPoolClientApp();
         this.createIdentityPool();
         this.createUserPoolGroups();
         this.configureIdentityPoolRoles();
     }
 
     private createUserPool() {
-        const CDKNAMESPACE = 'aa596cee-451b-11e9-b210-d663bd873d93';
-        let genFunctionId = this.properties.getApplicationName() + 'SimpleUserPoolGenFn';
-        const generatingFunction = new SingletonFunction(this, genFunctionId, {
-            // To avoid collisions when running the on the same environment
-            // many times, we're using uuid to stick to some 'aleatory' 
-            // uuid related to the genFunctionId
-            uuid: uuid(genFunctionId, CDKNAMESPACE)
-            , code: Code.asset(path.join(lambdasLocation, 'simpleUserPool'))
-            , description: "Generates the UserPool using configuration not available on CDK"
-            , handler: 'index.handler'
-            , timeout: Duration.seconds(300)
-            , runtime: Runtime.NODEJS_10_X
-        });
-
-
-        let generatingFunctionPolicyStatement: PolicyStatement = new PolicyStatement({
-            effect: Effect.ALLOW,
-            resources: ["*"]
-        });
-        generatingFunctionPolicyStatement.addActions(
-            "cognito-idp:DeleteUserPool",
-            "cognito-idp:CreateUserPool",
-            "cognito-idp:UpdateUserPool",
-            "cognito-idp:CreateUserPoolDomain",
-            "cognito-idp:DeleteUserPoolDomain"
-        );
-        generatingFunction.addToRolePolicy(generatingFunctionPolicyStatement);
-
-        this.simpleUserPool = new Cfn.CustomResource(this, this.properties.getApplicationName() + 'SimpleUserPoolCustomResource', {
-            provider: Cfn.CustomResourceProvider.lambda(generatingFunction)
-            , properties: {
-                AppName: this.properties.getApplicationName(),
-                UserPoolName: this.properties.getApplicationName(),
-                PostConfirmationLambdaArn: this.postRegistrationTriggerFunction.functionArn
+        this.userPool = new Cognito.UserPool(this, this.properties.getApplicationName() + 'UserPool', {
+            passwordPolicy : {
+             minLength : 6,
+             requireLowercase : false,
+             requireUppercase : false,
+             requireDigits : false,
+             requireSymbols : false
+            }, 
+            userPoolName : this.properties.getApplicationName(),
+            standardAttributes : {
+                email : {
+                    required : true,
+                    mutable : true
+                },
+                website : {
+                    mutable : true,
+                    required : true
+                }
+            },
+            lambdaTriggers : {
+                postConfirmation : this.postRegistrationTriggerFunction
+            },
+            autoVerify : {
+                email : true
+            },
+            signInAliases : {
+                username : true,
+                email : true
+            },
+            selfSignUpEnabled : true,
+            userVerification : {
+                emailSubject : `AlienAttack environment ${this.properties.getApplicationName()} sent your verification link`,
+                emailBody : "Please click the link below to verify your email address. {##Verify Email##}",
+                emailStyle : Cognito.VerificationEmailStyle.LINK
             }
         });
-
-        this.userPool.userPoolId = this.simpleUserPool.getAtt('UserPoolId').toString();
-        this.userPool.userPoolArn = this.simpleUserPool.getAtt('UserPoolArn').toString();
-        this.userPool.userPoolProviderName = this.simpleUserPool.getAtt('UserPoolProviderName').toString();
-        this.userPool.userPoolName = this.simpleUserPool.getAtt('UserPoolName').toString();
-
-        // Gives permission for userpool to call the lambda trigger
-        new CfnPermission(this, this.properties.getApplicationName() + 'UserPoolPerm', {
-            action: 'lambda:invokeFunction'
-            , principal: 'cognito-idp.amazonaws.com'
-            , functionName: this.postRegistrationTriggerFunction.functionName
-            , sourceArn: this.userPool.userPoolArn
-        })
-
-        let policy = new Policy(this, this.properties.getApplicationName() + 'TriggerFunctionPolicy', {
-            policyName: 'AllowAddUserToGroup'
+        this.userPool.addDomain(this.properties.getApplicationName().toLowerCase(),{
+            cognitoDomain : {
+                domainPrefix : this.properties.getApplicationName().toLowerCase()
+            }
         });
-
-        let policyStatement = new PolicyStatement({ effect: Effect.ALLOW, });
-        policyStatement.addResources(this.userPool.userPoolArn);
-        policyStatement.addActions('cognito-idp:AdminAddUserToGroup')
-        policy.addStatements(policyStatement);
-        this.postRegistrationTriggerFunctionRole.attachInlinePolicy(policy);
-        this.addResource('security.userpool', this.userPool);
-    }
-
-
-    private createUserPoolClientApp() {
-        this.userPoolClient = new Cognito.CfnUserPoolClient(this, this.properties.getApplicationName() + 'App', {
-            userPoolId: this.userPool.userPoolId,
-            clientName: this.properties.getApplicationName() + 'Website',
-            generateSecret: false,
-            explicitAuthFlows: ["USER_PASSWORD_AUTH"]
+        this.userPoolClient = new Cognito.UserPoolClient(this,this.properties.getApplicationName()+"Client",{
+            userPool : this.userPool,
+            generateSecret : false,
+            userPoolClientName : this.properties.getApplicationName() + 'Website',
+            authFlows : {
+                userSrp : true
+            }
         });
-        this.addResource('security.userpoolclient', this.userPoolClient);
     }
 
     private createIdentityPool() {
@@ -161,13 +120,13 @@ export class SecurityLayer extends ResourceAwareConstruct {
             allowUnauthenticatedIdentities: false,
             cognitoIdentityProviders: [
                 {
-                    clientId: this.userPoolClient.ref,
+                    clientId: this.userPoolClient.userPoolClientId,
                     providerName: this.userPool.userPoolProviderName,
                     serverSideTokenCheck: false
                 }
             ]
         })
-        this.identityPool.node.addDependency(this.simpleUserPool);
+        this.identityPool.node.addDependency(this.userPool);
         this.addResource('security.identitypool', this.identityPool);
     }
 
@@ -273,7 +232,6 @@ export class SecurityLayer extends ResourceAwareConstruct {
     }
 
     private creatPostRegistrationLambdaTrigger() {
-
         this.postRegistrationTriggerFunctionRole = new Role(this, this.properties.getApplicationName() + 'PostRegistrationFn_Role', {
             roleName: this.properties.getApplicationName() + 'PostRegistrationFn_Role'
             , assumedBy: new ServicePrincipal('lambda.amazonaws.com')
@@ -281,12 +239,22 @@ export class SecurityLayer extends ResourceAwareConstruct {
         this.postRegistrationTriggerFunctionRole.addManagedPolicy({
             managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
         });
+        this.postRegistrationTriggerFunctionRole.addToPolicy(new PolicyStatement(
+            {
+                actions : [ 
+                    "cognito-idp:AdminAddUserToGroup"
+                ],
+                resources : [
+                    "*"
+                ]
 
+            }
+        ));
         this.postRegistrationTriggerFunction =
             new Function(this, this.properties.getApplicationName() + 'PostRegistration', {
                 runtime: Runtime.NODEJS_10_X,
                 handler: 'index.handler',
-                code: Code.asset(path.join(lambdasLocation, 'postRegistration'))
+                code: Code.fromAsset(path.join(lambdasLocation, 'postRegistration'))
                 , functionName: this.properties.getApplicationName() + 'PostRegistrationFn'
                 , description: 'This function adds an user to the Players group after confirmation'
                 , memorySize: 128

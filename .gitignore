@@ -9,3 +9,4 @@ infrastructure/cdk/test/*.js
 infrastructure/cdk/package-lock.json
 *.yaml
 .DS_Store
+infrastructure/cdk/test/*.js
