@@ -68,7 +68,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketConnect', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation, 'websocketConnect')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'websocketConnect')),
                     environment: {
                         'SESSION_CONTROL_TABLENAME': sessionControlTable.tableName,
                         'SESSION_PARAMETER': sessionParameter.name
@@ -124,7 +124,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketSynchronizeStart', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation, 'synchronousStart')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'synchronousStart')),
                     environment: {
                         'SESSION_CONTROL_TABLENAME': sessionControlTable.tableName,
                         'SESSION_PARAMETER': sessionParameter.name
@@ -180,7 +180,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketDisconnect', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation, 'websocketDisconnect')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'websocketDisconnect')),
                     environment: {
                         'SESSION_CONTROL_TABLENAME': sessionControlTable.tableName,
                         'SESSION_PARAMETER': sessionParameter.name

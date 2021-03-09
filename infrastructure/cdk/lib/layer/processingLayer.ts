@@ -83,7 +83,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'AllocateGamerFn', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation,'allocateGamer')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation,'allocateGamer')),
                     environment: {
                         'SESSION_CONTROL_TABLENAME': sessionControlTable.tableName,
                         'SESSION_PARAMETER': parameterNameForLambda
@@ -154,7 +154,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'DeallocateGamerFn', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation,'deallocateGamer')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation,'deallocateGamer')),
                     environment: {
                         'SESSION_CONTROL_TABLENAME': sessionControlTable.tableName,
                         'SESSION_PARAMETER': parameterName
@@ -236,7 +236,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
                 new Lambda.Function(this, this.properties.getApplicationName() + 'ScoreboardFn', {
                     runtime:Lambda.Runtime.NODEJS_10_X,
                     handler: 'index.handler',
-                    code: Lambda.Code.asset(path.join(lambdasLocation,'scoreboard')),
+                    code: Lambda.Code.fromAsset(path.join(lambdasLocation,'scoreboard')),
                     environment: {
                         'DLQ_URL': dlq.queueUrl,
                         'SESSION_PARAMETER': parameterName,

@@ -53,7 +53,7 @@ setApplicationProperty("firehose","Kinesis Firehose");
 Utils.checkforExistingBuckets(initProps.getBucketNames())
     .then((listOfExistingBuckets) => {
         if (listOfExistingBuckets && listOfExistingBuckets.length > 0)
-            console.log("# The following buckets are NOT being created because already exists: ", listOfExistingBuckets);
+            console.log("# The following buckets are NOT being created because they already exist: ", listOfExistingBuckets);
         initProps.addParameter('existingbuckets', listOfExistingBuckets);
         new MainLayer(app, initProps.getApplicationName(), initProps);
 })

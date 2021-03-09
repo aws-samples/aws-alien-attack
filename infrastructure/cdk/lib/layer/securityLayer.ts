@@ -82,15 +82,15 @@ export class SecurityLayer extends ResourceAwareConstruct {
                     required : true
                 }
             },
+            lambdaTriggers : {
+                postConfirmation : this.postRegistrationTriggerFunction
+            },
             autoVerify : {
                 email : true
             },
             signInAliases : {
                 username : true,
                 email : true
-            },
-            lambdaTriggers : {
-                postConfirmation : this.postRegistrationTriggerFunction
             },
             selfSignUpEnabled : true,
             userVerification : {
@@ -109,7 +109,7 @@ export class SecurityLayer extends ResourceAwareConstruct {
             generateSecret : false,
             userPoolClientName : this.properties.getApplicationName() + 'Website',
             authFlows : {
-                userPassword : true
+                userSrp : true
             }
         });
     }
@@ -232,7 +232,6 @@ export class SecurityLayer extends ResourceAwareConstruct {
     }
 
     private creatPostRegistrationLambdaTrigger() {
-
         this.postRegistrationTriggerFunctionRole = new Role(this, this.properties.getApplicationName() + 'PostRegistrationFn_Role', {
             roleName: this.properties.getApplicationName() + 'PostRegistrationFn_Role'
             , assumedBy: new ServicePrincipal('lambda.amazonaws.com')
@@ -240,12 +239,22 @@ export class SecurityLayer extends ResourceAwareConstruct {
         this.postRegistrationTriggerFunctionRole.addManagedPolicy({
             managedPolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
         });
+        this.postRegistrationTriggerFunctionRole.addToPolicy(new PolicyStatement(
+            {
+                actions : [ 
+                    "cognito-idp:AdminAddUserToGroup"
+                ],
+                resources : [
+                    "*"
+                ]
 
+            }
+        ));
         this.postRegistrationTriggerFunction =
             new Function(this, this.properties.getApplicationName() + 'PostRegistration', {
                 runtime: Runtime.NODEJS_10_X,
                 handler: 'index.handler',
-                code: Code.asset(path.join(lambdasLocation, 'postRegistration'))
+                code: Code.fromAsset(path.join(lambdasLocation, 'postRegistration'))
                 , functionName: this.properties.getApplicationName() + 'PostRegistrationFn'
                 , description: 'This function adds an user to the Players group after confirmation'
                 , memorySize: 128
