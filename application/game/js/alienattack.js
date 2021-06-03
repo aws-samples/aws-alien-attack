@@ -454,13 +454,26 @@ RegisterOrLoginState.prototype.modalClose = function (selectedButton) {
     );
 }
 
-
 function RegisterState() {
     this.modal = new Modal(document.getElementById("modalDialog"));
     var modalDialogString =
         `<h2>AlienAttack:REGISTER</h2>
         <label>Nickname* (username; DO NOT USE YOUR EMAIL)</label>
-        <input type="text" name="nickname" id="registerDiv.nickname" />   
+        <input type="text" name="nickname" id="registerDiv.nickname" onfocusout="function validateNickname() {
+          function is_email(email){      
+              var emailReg = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+              return emailReg.test(email); 
+          }
+          
+          var nicknameField = document.getElementById('registerDiv.nickname');
+          if (nicknameField.value.trim() != '') {
+            if (is_email(nicknameField.value)) {
+               alert('Please DO NOT use your email as the nickname');
+               nicknameField.value = '';
+               nicknameField.focus();
+            }
+          }
+        }; validateNickname()"/>
         <label>E-mail*</label>
         <input type="text" name="email" id="registerDiv.email" />
         <label>Password* (6 or more characters) </label>
@@ -474,7 +487,6 @@ function RegisterState() {
         <label>(*) required fields</label>`;
     this.modal.show(modalDialogString, { actionOnClose: "game.modalClose('CLOSE')" });
 }
-
 
 RegisterState.prototype.modalClose = function (msg) {
     var self = this;
