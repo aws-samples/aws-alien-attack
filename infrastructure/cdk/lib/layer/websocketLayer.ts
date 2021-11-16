@@ -66,7 +66,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable) {
             let createdFunction: Lambda.Function = 
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketConnect', {
-                    runtime:Lambda.Runtime.NODEJS_10_X,
+                    runtime:Lambda.Runtime.NODEJS_14_X,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'websocketConnect')),
                     environment: {
@@ -122,7 +122,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable) {
             let createdFunction: Lambda.Function = 
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketSynchronizeStart', {
-                    runtime:Lambda.Runtime.NODEJS_10_X,
+                    runtime:Lambda.Runtime.NODEJS_14_X,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'synchronousStart')),
                     environment: {
@@ -178,7 +178,7 @@ export class WebSocketLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable) {
             let createdFunction: Lambda.Function = 
                 new Lambda.Function(this, this.properties.getApplicationName() + 'WebSocketDisconnect', {
-                    runtime:Lambda.Runtime.NODEJS_10_X,
+                    runtime:Lambda.Runtime.NODEJS_14_X,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation, 'websocketDisconnect')),
                     environment: {
