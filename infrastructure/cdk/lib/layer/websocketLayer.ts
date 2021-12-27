@@ -1,15 +1,16 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct, Duration } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { Duration } from 'aws-cdk-lib/core';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
 
-import Lambda = require('@aws-cdk/aws-lambda');
-import IAM = require('@aws-cdk/aws-iam');
+import Lambda = require('aws-cdk-lib/aws-lambda');
+import IAM = require('aws-cdk-lib/aws-iam');
 
-import { Table } from '@aws-cdk/aws-dynamodb';
-import { ManagedPolicy } from '@aws-cdk/aws-iam';
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 
-const path = require('path');
+import path = require('path');
 
 const lambdasLocation = path.join(__dirname,'..','..','lambdas');
 

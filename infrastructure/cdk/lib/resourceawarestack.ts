@@ -1,6 +1,7 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import {App, Stack, Construct, StackProps} from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { Stack, StackProps } from 'aws-cdk-lib'; 
 
 export interface IFlexNameApplication {
     applicationName? : string,

@@ -1,9 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct, RemovalPolicy } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import {  RemovalPolicy } from 'aws-cdk-lib';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
 
-import DynamoDB = require('@aws-cdk/aws-dynamodb');
+import DynamoDB = require('aws-cdk-lib/aws-dynamodb');
 
 
 export class DatabaseLayer extends ResourceAwareConstruct {

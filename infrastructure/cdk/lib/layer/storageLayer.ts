@@ -1,8 +1,9 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct, RemovalPolicy } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { RemovalPolicy } from 'aws-cdk-lib';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import { IBucket, Bucket, BucketProps, HttpMethods } from '@aws-cdk/aws-s3';
+import { IBucket, Bucket, BucketProps, HttpMethods } from 'aws-cdk-lib/aws-s3';
 
 
 interface IBucketCreationProps {
