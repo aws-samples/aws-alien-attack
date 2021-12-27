@@ -1,13 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct, Duration } from '@aws-cdk/core';
+import { Construct } from 'constructs';
+import { Duration } from 'aws-cdk-lib';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import { Function, SingletonFunction, Code, Runtime, CfnPermission } from '@aws-cdk/aws-lambda'
-import { Role, Effect, PolicyStatement, FederatedPrincipal, ServicePrincipal, Policy } from '@aws-cdk/aws-iam';
+import { Function , Code, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { Role, Effect, PolicyStatement, FederatedPrincipal, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 
-import Cognito = require('@aws-cdk/aws-cognito');
+import Cognito = require('aws-cdk-lib/aws-cognito');
 
-const path = require('path');
+import path = require('path');
 
 const lambdasLocation = path.join(__dirname, '..', '..', 'lambdas');
 

@@ -1,10 +1,8 @@
-import { Template } from "@aws-cdk/assertions";
-import * as cdk from "@aws-cdk/core";
+import { Template } from "aws-cdk-lib/assertions";
 import * as configLayer from './../lib/layer/configurationLayer';
 import * as databaseLayer from './../lib/layer/databaseLayer';
 import * as securityLayer from './../lib/layer/securityLayer';
 import * as storageLayer from './../lib/layer/storageLayer';
-import * as contentDeliveryLayer from './../lib/layer/contentDeliveryLayer';
 import * as processingLayer from './../lib/layer/processingLayer';
 import * as websocketLayer from './../lib/layer/websocketLayer';
 import * as ingestionConsumptionLayer from './../lib/layer/ingestionConsumptionLayer';

@@ -1,10 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct } from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import { CloudFrontWebDistribution, OriginAccessIdentity } from '@aws-cdk/aws-cloudfront';
-import { Bucket, BucketPolicy} from '@aws-cdk/aws-s3';
-import IAM = require('@aws-cdk/aws-iam');
+import { CloudFrontWebDistribution, OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import { Bucket, BucketPolicy} from 'aws-cdk-lib/aws-s3';
+import IAM = require('aws-cdk-lib/aws-iam');
 
 
 export class ContentDeliveryLayer extends ResourceAwareConstruct {
@@ -50,6 +50,6 @@ export class ContentDeliveryLayer extends ResourceAwareConstruct {
         })
         );
 
-        this.addResource("cdndomain",distribution.domainName);
+        this.addResource("cdndomain",distribution.distributionDomainName);
     }
 }

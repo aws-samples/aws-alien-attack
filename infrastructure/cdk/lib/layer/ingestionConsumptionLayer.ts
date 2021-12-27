@@ -1,20 +1,20 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct } from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
 
 
-import KDS = require('@aws-cdk/aws-kinesis');
-import KDF = require('@aws-cdk/aws-kinesisfirehose');
-import IAM = require('@aws-cdk/aws-iam');
-import APIGTW = require('@aws-cdk/aws-apigateway');
-import { Table } from '@aws-cdk/aws-dynamodb';
-import Lambda = require('@aws-cdk/aws-lambda');
+import KDS = require('aws-cdk-lib/aws-kinesis');
+import KDF = require('aws-cdk-lib/aws-kinesisfirehose');
+import IAM = require('aws-cdk-lib/aws-iam');
+import APIGTW = require('aws-cdk-lib/aws-apigateway');
+import { Table } from 'aws-cdk-lib/aws-dynamodb';
+import Lambda = require('aws-cdk-lib/aws-lambda');
 
 
-import Logs = require('@aws-cdk/aws-logs');
-import { KinesisEventSource } from '@aws-cdk/aws-lambda-event-sources';
-import { PolicyDocument, PolicyStatement } from '@aws-cdk/aws-iam';
+import Logs = require('aws-cdk-lib/aws-logs');
+import { KinesisEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
+import { PolicyDocument, PolicyStatement } from 'aws-cdk-lib/aws-iam';
 
 export class IngestionConsumptionLayer extends ResourceAwareConstruct {
 

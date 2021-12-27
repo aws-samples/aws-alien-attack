@@ -243,12 +243,7 @@ function destroyCDKEnvironment() {
         _curDir=$PWD
         cd cdk
         envnameUppercase=$(echo $1 | tr 'a-z' 'A-Z')
-        url=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envnameUppercase\`) && Name==\`url\`].Value | [0]' | xargs -I {} echo {}"))
-        if [ "$url" == null ]; then
-            EXECUTE "cdk destroy -c envname=$envnameUppercase"
-        else
-            EXECUTE "cdk destroy -c envname=$envnameUppercase -c deploycdn=true"
-        fi
+        EXECUTE "cdk destroy -c envname=$envnameUppercase"
         cd $_curDir
     fi
 }

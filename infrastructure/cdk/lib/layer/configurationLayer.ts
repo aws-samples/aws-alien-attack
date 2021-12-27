@@ -1,8 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import { Construct } from '@aws-cdk/core';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import ssm = require('@aws-cdk/aws-ssm');
+import { Construct } from 'constructs';
+import * as ssm from 'aws-cdk-lib/aws-ssm';  
 
 
 /**
@@ -26,10 +26,9 @@ export class ConfigurationLayer extends ResourceAwareConstruct {
 
     private createParameter(appName : string, keyName: string, value : string) {    
         let baseName : string = '/'+ appName.toLowerCase();
-        let parameter = new ssm.CfnParameter(this, 'SSMParameter'+appName+keyName, {
-            name: baseName + '/'+keyName.toLowerCase(),
-            type: 'String',
-            value: value
+        let parameter = new ssm.StringParameter(this, 'SSMParameter'+appName+keyName, {
+            parameterName : baseName + '/'+keyName.toLowerCase(),
+            stringValue: value
         });
         return parameter;
     }
