@@ -1,0 +1,69 @@
+version: 0.2
+
+#env:
+  #variables:
+     # key: "value"
+     # key: "value"
+  #parameter-store:
+     # key: "value"
+     # key: "value"
+  #secrets-manager:
+     # key: secret-id:json-key:version-stage:version-id
+     # key: secret-id:json-key:version-stage:version-id
+  #exported-variables:
+     # - variable
+     # - variable
+  #git-credential-helper: yes
+#batch:
+  #fast-fail: true
+  #build-list:
+  #build-matrix:
+  #build-graph:
+phases:
+  install:
+    runtime-versions:
+        nodejs: 14
+    commands:
+      - npm install -g typescript@4.2.4
+      - npm install -g aws-cdk@2.3.0
+  pre_build:
+    commands:
+      # checking cdk cli version
+      - cdk --version
+      # it starts on the root folder for the project
+      - cd ./infrastructure/cdk
+      - npm install
+      ### Generating a random 6 hexadecimal digit code, like a0b1c2
+      - randomcode=$(openssl rand -hex 3)
+      ### Defining envname - envname will be, by default, in uppercase
+      - curdate=$(echo $(date +%s))
+      - export envname=$(echo TEST$curdate"aaa"$randomcode | tr 'a-z' 'A-Z')
+      - export envnameLowercase=$(echo $envname | tr 'A-Z' 'a-z' )
+  build:
+    commands:
+      - npm run build
+  post_build:
+    commands:
+      # if you need to test for an error, uncomment the line below
+      #- raise error "FORCED EXIT"
+      - npm run test
+      #- cdk synth --app "node ./bin/cdk.js" -c envname=$envname
+      - cdk synth -c envname=$envname > output.yaml
+#reports:
+  #report-name-or-arn:
+    #files:
+      # - location
+      # - location
+    #base-directory: location
+    #discard-paths: yes
+    #file-format: JunitXml | CucumberJson
+#artifacts:
+  #files:
+    # - location
+    # - location
+  #name: $(date +%Y-%m-%d)
+  #discard-paths: yes
+  #base-directory: location
+#cache:
+  #paths:
+    # - paths
