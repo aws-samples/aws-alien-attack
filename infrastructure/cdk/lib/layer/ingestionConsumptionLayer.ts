@@ -278,7 +278,10 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
                 "title": "GetParametersRequest",
                 "type": "object",
                 "properties": {
-                    "names": { "type": "array" }
+                    "names": { 
+                        "type": "array",
+                        "items": { "type": "string" }
+                    }
                 }
             }
         });
