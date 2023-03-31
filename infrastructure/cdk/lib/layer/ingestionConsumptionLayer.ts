@@ -1044,49 +1044,27 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
 
     updateUsersRoles(props: IParameterAwareProps) {
 
-        let baseArn = 'arn:aws:apigateway:' + props.region + ':' + props.accountId + ':' + this.api.ref + '/prod/*/';
         let baseExecArn = 'arn:aws:execute-api:' + props.region + ':' + props.accountId + ':' + this.api.ref + '/prod/';
         let playerRole = (<IAM.Role>props.getParameter('security.playersrole'));
 
         playerRole.addToPolicy(
             new IAM.PolicyStatement({
-                actions: ['apigateway:GET'],
-                resources: [
-                    baseArn + 'config',
-                    baseArn + 'session',
-                    baseArn + 'scoreboard'
-                ]
-            })
-        );
-        playerRole.addToPolicy(
-            new IAM.PolicyStatement(
-                {
                     actions: ['execute-api:Invoke'],
                     resources: [
-                        baseExecArn + 'GET/config',
-                        baseExecArn + 'GET/session',
-                        baseExecArn + 'GET/scoreboard'
+                        baseExecArn + 'GET/*/config',
+                        baseExecArn + 'GET/*/session',
+                        baseExecArn + 'GET/*/scoreboard'
                     ]
-                })
+            })
         );
-        playerRole.addToPolicy(
-            new IAM.PolicyStatement(
-                {
-                    actions: ['apigateway:POST'],
-                    resources: [
-                        baseArn + 'updatestatus',
-                        baseArn + 'allocate',
-                        baseArn + 'deallocate'
-                    ]
-                })
-        );
+
         playerRole.addToPolicy(
             new IAM.PolicyStatement({
                 actions: ['execute-api:Invoke'],
                 resources: [
-                    baseExecArn + 'POST/updatestatus',
-                    baseExecArn + 'POST/allocate',
-                    baseExecArn + 'POST/deallocate'
+                    baseExecArn + 'POST/*/updatestatus',
+                    baseExecArn + 'POST/*/allocate',
+                    baseExecArn + 'POST/*/deallocate'
                 ]
             })
         );
@@ -1120,6 +1098,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
                 ]
             })
         );
+        
         managerRole.addToPolicy(
             new IAM.PolicyStatement({
                 actions : [
@@ -1131,10 +1110,13 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             })
         );
 
+        // managers can invoke any resources on this API
         managerRole.addToPolicy(
             new IAM.PolicyStatement({
-                actions: [ 'apigateway:*' ],
-                resources : [ baseArn + '*' ]
+                actions: ['execute-api:Invoke'],
+                resources: [
+                    baseExecArn + '*/*/*'
+                ]
             })
         );
     }
