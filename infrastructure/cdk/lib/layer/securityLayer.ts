@@ -110,7 +110,8 @@ export class SecurityLayer extends ResourceAwareConstruct {
             generateSecret : false,
             userPoolClientName : this.properties.getApplicationName() + 'Website',
             authFlows : {
-                userSrp : true
+                userSrp : true,
+                userPassword: true
             }
         });
     }
