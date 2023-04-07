@@ -1,12 +1,14 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-const AWS = require('aws-sdk');
+const {
+  CognitoIdentityProvider: CognitoIdentityServiceProvider
+} = require("@aws-sdk/client-cognito-identity-provider");
 
 exports.handler = (event, _, callback) => {
     console.log(event);
     if (event && event.userPoolId && event.userName) {
       if (['PostConfirmation_ConfirmSignUp', 'PostConfirmation_AdminConfirmSignUp' ].indexOf(event.triggerSource) > -1) {
-          var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
+          var cognitoidentityserviceprovider = new CognitoIdentityServiceProvider();
           var params = {
             GroupName: 'Players', 
             UserPoolId: event.userPoolId, 

@@ -6,9 +6,17 @@
  */
 'use strict';
 
-const AWS = require('aws-sdk');
-const DynamoDB = new AWS.DynamoDB.DocumentClient();
-const SSM = new AWS.SSM();
+const {
+          DynamoDBDocument
+      } = require("@aws-sdk/lib-dynamodb"),
+      {
+          DynamoDBClient
+      } = require("@aws-sdk/client-dynamodb"),
+      {
+          SSMClient
+      } = require("@aws-sdk/client-ssm");
+const DynamoDB = DynamoDBDocument.from(new DynamoDBClient());
+const SSM = new SSMClient();
 
 const readSessionFromSSM = function (callback) {
     let param = {

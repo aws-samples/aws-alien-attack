@@ -7,10 +7,21 @@
 
 'use strict';
 
-const AWS = require('aws-sdk');
-const DynamoDB = new AWS.DynamoDB.DocumentClient();
-const SSM = new AWS.SSM();
-const APIGatewayManagement = new AWS.ApiGatewayManagementApi({apiVersion: '2018-11-29'});
+const {
+          ApiGatewayManagementApi
+      } = require("@aws-sdk/client-apigatewaymanagementapi"),
+      {
+          DynamoDBDocument
+      } = require("@aws-sdk/lib-dynamodb"),
+      {
+          DynamoDB
+      } = require("@aws-sdk/client-dynamodb"),
+      {
+          SSM
+      } = require("@aws-sdk/client-ssm");
+const DynamoDB = DynamoDBDocument.from(new DynamoDB());
+const SSM = new SSM();
+const APIGatewayManagement = new ApiGatewayManagementApi({apiVersion: '2018-11-29'});
 
 const readSessionFromSSM = function (callback) {
     let param = {
@@ -111,7 +122,7 @@ const dispatchToConnections = async (connections, session, callback) => {
             await APIGatewayManagement.postToConnection({
                 ConnectionId: connection,
                 Data: 'start'
-            }).promise();
+            });
         } catch (e) {
             console.log(e);
             if (e.statusCode == 410) {
