@@ -8,17 +8,17 @@ echo --
 echo Updating node to the latest version
 #node_version=$(nvm ls-remote --lts | grep Latest | tail -1 | grep -o 'v[.0-9]*' | sed 's/\x1b\[[0-9;]*m//g')
 #node_version=${node_version:1}
-node_version="14.15.0"
+node_version="16.20.0"
 nvm install $node_version
 nvm alias latest $node_version
 nvm alias default latest
 nvm use $node_version
 echo --
 echo Installing Typescript
-npm install -g typescript@4.2.4
+npm install -g typescript@45.0.3
 echo --
 echo Installing CDK
-npm install -g aws-cdk@2.45.0
+npm install -g aws-cdk@2.72.0
 echo --
 echo Bootstraping CDK
 account=$(aws sts get-caller-identity --output text --query 'Account')

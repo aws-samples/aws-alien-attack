@@ -223,7 +223,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , responseTemplates: {
                 "application/json": "{\"message\":$context.error.messageString}"
             }
-        }).addDependsOn(this.api);
+        }).addDependency(this.api);
 
         let authorizer = new APIGTW.CfnAuthorizer(this, props.getApplicationName() + "Authorizer", {
             name: props.getApplicationName().toLowerCase() + 'Authorizer'
@@ -1023,20 +1023,20 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , stageName: 'prod'
             , description: 'Production deployment'
         });
-        deployment.addDependsOn(sessionGetMethod);
-        deployment.addDependsOn(sessionOptionsMethod);
-        deployment.addDependsOn(websocketGetMethod);
-        deployment.addDependsOn(websocketOptionsMethod);
-        deployment.addDependsOn(configGetMethod);
-        deployment.addDependsOn(configOptionsMethod);
-        deployment.addDependsOn(allocatePostMethod);
-        deployment.addDependsOn(allocateOptionsMethod);
-        deployment.addDependsOn(deallocatePostMethod);
-        deployment.addDependsOn(deallocateOptionsMethod);
-        deployment.addDependsOn(scoreboardPostMethod);
-        deployment.addDependsOn(scoreboardOptionsMethod);
-        deployment.addDependsOn(updatestatusPostMethod);
-        deployment.addDependsOn(updatestatusOptionsMethod);
+        deployment.addDependency(sessionGetMethod);
+        deployment.addDependency(sessionOptionsMethod);
+        deployment.addDependency(websocketGetMethod);
+        deployment.addDependency(websocketOptionsMethod);
+        deployment.addDependency(configGetMethod);
+        deployment.addDependency(configOptionsMethod);
+        deployment.addDependency(allocatePostMethod);
+        deployment.addDependency(allocateOptionsMethod);
+        deployment.addDependency(deallocatePostMethod);
+        deployment.addDependency(deallocateOptionsMethod);
+        deployment.addDependency(scoreboardPostMethod);
+        deployment.addDependency(scoreboardOptionsMethod);
+        deployment.addDependency(updatestatusPostMethod);
+        deployment.addDependency(updatestatusOptionsMethod);
 
         this.addResource("apigtw.url","https://"+this.api.ref+".execute-api."+props.region+".amazonaws.com/prod/v1/");
     }
