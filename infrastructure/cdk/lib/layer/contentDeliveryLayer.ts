@@ -46,7 +46,7 @@ export class ContentDeliveryLayer extends ResourceAwareConstruct {
             resources: [
                 appBucket.arnForObjects("*")
             ],
-            principals : [ new IAM.ArnPrincipal("arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "+cloudFrontAccessIdentity.originAccessIdentityName) ]
+            principals : [ new IAM.ArnPrincipal("arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "+cloudFrontAccessIdentity.originAccessIdentityId) ]
         })
         );
 
