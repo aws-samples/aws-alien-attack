@@ -2,21 +2,10 @@
 // SPDX-License-Identifier: MIT-0
 'use strict';
 
-const {
-          DynamoDBDocument
-      } = require("@aws-sdk/lib-dynamodb"),
-      {
-          DynamoDBClient
-      } = require("@aws-sdk/client-dynamodb"),
-      {
-          SQSClient
-      } = require("@aws-sdk/client-sqs"),
-      {
-          SSMClient
-      } = require("@aws-sdk/client-ssm");
-const DynamoDB = DynamoDBDocument.from(new DynamoDBClient());
-const SSM = new SSMClient();
-const SQS = new SQSClient();
+const AWS = require('aws-sdk');
+const DynamoDB = new AWS.DynamoDB.DocumentClient();
+const SSM = new AWS.SSM();
+const SQS = new AWS.SQS();
 
 const scoreboardSortingFunction = function(playerA, playerB) {
     let result = null;

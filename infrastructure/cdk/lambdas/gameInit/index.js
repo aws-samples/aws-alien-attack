@@ -1,16 +1,10 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
 'use strict';
-const AWS = require('aws-sdk'),
-      {
-          CognitoIdentityProvider: CognitoIdentityServiceProvider
-      } = require("@aws-sdk/client-cognito-identity-provider"),
-      {
-          SSMClient
-      } = require("@aws-sdk/client-ssm");
+const AWS = require('aws-sdk');
 if (!AWS.config.region) AWS.config.region = 'us-east-1';
-const COGNITO = new CognitoIdentityServiceProvider();
-const SSM = new SSMClient();
+const COGNITO = new AWS.CognitoIdentityServiceProvider();
+const SSM = new AWS.SSM();
 
 class AlienAttackGameInit {
 
