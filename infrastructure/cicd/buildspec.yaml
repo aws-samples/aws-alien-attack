@@ -1,5 +1,6 @@
 version: 0.2
-
+# IMAGE USED
+# aws/codebuild/standard:6.0
 #env:
   #variables:
      # key: "value"
@@ -22,10 +23,10 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-        nodejs: 14
+        nodejs: 16
     commands:
-      - npm install -g typescript@4.2.4
-      - npm install -g aws-cdk@2.45.0
+      - npm install -g typescript@5.0.3
+      - npm install -g aws-cdk@2.72.0
   pre_build:
     commands:
       # checking cdk cli version
