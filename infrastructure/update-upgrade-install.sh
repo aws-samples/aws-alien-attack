@@ -9,13 +9,17 @@ echo Updating node to the latest version
 #node_version=$(nvm ls-remote --lts | grep Latest | tail -1 | grep -o 'v[.0-9]*' | sed 's/\x1b\[[0-9;]*m//g')
 #node_version=${node_version:1}
 node_version="16.20.0"
-nvm install $node_version
-nvm alias latest $node_version
-nvm alias default latest
+if [[ $(nvm ls | grep $node_version) == "" ]]; then
+  nvm install $node_version
+else
+  nvm use $node_version
+  nvm alias latest $node_version
+  nvm alias default latest
+fi
 nvm use $node_version
 echo --
 echo Installing Typescript
-npm install -g typescript@45.0.3
+npm install -g typescript@5.0.3
 echo --
 echo Installing CDK
 npm install -g aws-cdk@2.72.0
