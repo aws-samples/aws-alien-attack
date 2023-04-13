@@ -5,7 +5,7 @@
 echo Updating the attached instance
 sudo yum update -y
 echo --
-echo Updating node to the latest version
+echo Configuring nodejs
 #node_version=$(nvm ls-remote --lts | grep Latest | tail -1 | grep -o 'v[.0-9]*' | sed 's/\x1b\[[0-9;]*m//g')
 #node_version=${node_version:1}
 node_version="16.20.0"
@@ -26,6 +26,7 @@ fi
 echo --
 cdk_version="2.72.0"
 echo Installing CDK
+rm -rf ~/.nvm/versions/node/v$node_version/bin/cdk
 if [[ $(npm list -g aws-cdk | grep $cdk_version) == "" ]]; then
   npm install -g aws-cdk@$cdk_version
 fi
