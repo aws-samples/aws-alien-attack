@@ -20,16 +20,16 @@ nvm use $node_version
 echo --
 tsc_version="5.0.3"
 echo Installing Typescript
-if [[ $(npm list -g typescript | grep $typescript_version) == "" ]]; then
+if [[ $( npm list -g typescript | grep $tsc_version ) == "" ]]; then
   npm install -g typescript@$tsc_version
 fi
 echo --
 cdk_version="2.72.0"
 echo Installing CDK
+# Forcing the removal of the latest version
 rm -rf ~/.nvm/versions/node/v$node_version/bin/cdk
-if [[ $(npm list -g aws-cdk | grep $cdk_version) == "" ]]; then
-  npm install -g aws-cdk@$cdk_version
-fi
+#installing it
+npm install -g aws-cdk@$cdk_version
 echo --
 echo Bootstraping CDK
 account=$(aws sts get-caller-identity --output text --query 'Account')
