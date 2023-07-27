@@ -17,7 +17,7 @@ echo "This is a workaround to guarantee that this workshop can run"
 echo "with multiple users under a single AWS account"
 echo "**************************************************************"
 echo
-read -p "What are your initials? " initials
+read -p "What are your initials? (don't use anything starting with 'AWS', 'XN', 'sthree', or any AWS service name) " initials 
 initials=$(echo $initials | tr -cd "[a-zA-Z0-9]\n" | tr 'A-Z' 'a-z'  )
 
 ### Generating a random 6 hexadecimal digit code, like a0b1c2
