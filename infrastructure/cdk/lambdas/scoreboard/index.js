@@ -2,10 +2,15 @@
 // SPDX-License-Identifier: MIT-0
 'use strict';
 
-const AWS = require('aws-sdk');
-const DynamoDB = new AWS.DynamoDB.DocumentClient();
-const SSM = new AWS.SSM();
-const SQS = new AWS.SQS();
+import { DynamoDBClient  } from "@aws-sdk/client-dynamodb"; 
+import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs"; 
+
+const DDBClient = new DynamoDBClient();
+const DynamoDB = DynamoDBDocumentClient.from(DDBClient);
+const SSM = new SSMClient();
+const SQS = new SQSClient();
 
 const scoreboardSortingFunction = function(playerA, playerB) {
     let result = null;
@@ -16,110 +21,98 @@ const scoreboardSortingFunction = function(playerA, playerB) {
     return result;
 };
 
-const reportInvalidRecordToDLQ = function(record) {
+const reportInvalidRecordToDLQ = async function(record) {
+    console.log('reportInvalidRecordToDLQ');
+    console.log(record);
     var sqsParameter = {
         //"QueueUrl" : "https://sqs.<region>.amazonaws.com/<account>/<envName>_DLQ",
         "QueueUrl" : process.env.DLQ_URL,
         "MessageBody" : JSON.stringify(record)
     };
-    SQS.sendMessage(sqsParameter);
+    let sqsResult = await SQS.sendMessage(sqsParameter);
+    console.log('sqsResult');
+    console.log(sqsResult);
 };
 
-const readSessionParameter = function(callback) {
+const readSessionParameter = async function(callback) {
+    let result = null;
     // parameter name is in the form '/<application_name>/session
     let sessionParameter = process.env.SESSION_PARAMETER;
-    SSM.getParameter( {"Name" : sessionParameter } , function(err,data) {
-        if (err) {
-            callback(new Error("Error getting session"),err);
-        }
-        else {
-            try {
-                var sessionInfo = JSON.parse(data.Parameter.Value);
-            } catch (e) {
-                var errorDetails = {
-                    "Error" : e,
-                    "ResponseFromSSM" : data
-                };
-                callback(new Error('Error parsing session data.'),errorDetails);
-            }
-            callback(null,sessionInfo);
-        }
-    });
+    let getParameterCommand = new GetParameterCommand({"Name" : sessionParameter });
+    let ssmResponse = await SSM.send(getParameterCommand);
+    console.log('ssmResponse');
+    console.log(ssmResponse);
+    try {
+        result = JSON.parse(ssmResponse.Parameter.Value);
+    } catch (exception) {
+        console.log(exception);
+        result=exception;
+    }
+    return result;
 };
 
-const writeSessionData = function(sessionData, callback) {
+const writeSessionData = async function(sessionData) {
     let sessionTableName = process.env.SESSION_TABLENAME;
     var putParams = {
         "TableName" : sessionTableName,
         "Item" : sessionData,
     };
-    DynamoDB.put(putParams, function(err,data) {
-        if (err) {
-            var errDetails = {
-                "Error" : err,
-                "ParametersToDynamoDB" : putParams,
-                "ResponseFromDynamoDB" : data
-            };
-            callback(new Error("Error saving session data."),errDetails);
-        }
-        else callback(null,data);
-    });
+    console.log('putParams');
+    console.log(putParams);
+    let putCommand = new PutCommand(putParams);
+    let result = await DynamoDB.send(putCommand);
+    console.log('writeSessionData result');
+    console.log(result);
 };
 
 
-const deallocateUsers = function (zeroeds, sessionId, callback) {
-    if (!zeroeds) callback(null,"Nothing to do");
+const deallocateUsers = async function (zeroeds, sessionId) {
+    let result = null;
+    if (!zeroeds) result = "Nothing to do";
     else {
         let sessionControlTable = process.env.SESSION_CONTROL_TABLENAME;
         let readSessionControlParam = {
             "TableName": sessionControlTable,
             "Key": { "SessionId": sessionId }
         };
-        DynamoDB.get(readSessionControlParam, function (err, getData) {
-            if (err) callback(err);
-            else {
-                let sessionControl = getData.Item;
-                // update PlayingGamers state
-                sessionControl.PlayingGamers = sessionControl.PlayingGamers.filter(
-                    (gamer) => { 
-                        return "undefined" == typeof(zeroeds.find( (zeroedRecord) => { return gamer == zeroedRecord.Nickname } ));
-                    }
-                );
-                // update FinishedGamers state - Implemented in a way to prevent deallocation failures
-                // (1) find those who are not in the list of already finished gamers
-                let zeroedToBeAdded = zeroeds.filter(
-                    (zeroedRecord) => { 
-                        return "undefined" == typeof(sessionControl.FinishedGamers.find( (nickname) => { return nickname == zeroedRecord.Nickname } ));
-                    }
-                );
-                // (2) Add them to the list of finished gamers
-                sessionControl.FinishedGamers = sessionControl.FinishedGamers.concat( zeroedToBeAdded.map( (zeroedRecord) => { return zeroedRecord.Nickname } ) );
-                let newNumberOfOccupiedSeats = sessionControl.PlayingGamers.length;
-                let params = {
-                    "TableName": sessionControlTable,
-                    "Key": { "SessionId": sessionControl.SessionId },
-                    "UpdateExpression": "SET OccupiedSeats = :n, PlayingGamers = :p, FinishedGamers = :f",
-                    "ConditionExpression": "OccupiedSeats = :o",
-                    'ExpressionAttributeValues': {
-                        ":n": newNumberOfOccupiedSeats,
-                        ":p": sessionControl.PlayingGamers,
-                        ":o": sessionControl.OccupiedSeats,
-                        ":f": sessionControl.FinishedGamers
-                    }
-                };
-                DynamoDB.update(params, function (err, _) {
-                    if (err) {
-                        let message = "Error in deallocating users";
-                        console.log(message);
-                        console.log(zeroeds);
-                        console.log(err);
-                        callback(new Error(message),err);
-                    }
-                    else callback(null, "Success deallocating "+ zeroeds.length +" users.");
-                });
+        let getCommand = new GetCommand(readSessionControlParam);
+        let getData = await DynamoDB.send(getCommand);
+        let sessionControl = getData.Item;
+        // update PlayingGamers state
+        sessionControl.PlayingGamers = sessionControl.PlayingGamers.filter(
+            (gamer) => { 
+                return "undefined" == typeof(zeroeds.find( (zeroedRecord) => { return gamer == zeroedRecord.Nickname } ));
             }
-        });
+        );
+        // update FinishedGamers state - Implemented in a way to prevent deallocation failures
+        // (1) find those who are not in the list of already finished gamers
+        let zeroedToBeAdded = zeroeds.filter(
+            (zeroedRecord) => { 
+                return "undefined" == typeof(sessionControl.FinishedGamers.find( (nickname) => { return nickname == zeroedRecord.Nickname } ));
+            }
+        );
+        // (2) Add them to the list of finished gamers
+        sessionControl.FinishedGamers = sessionControl.FinishedGamers.concat( zeroedToBeAdded.map( (zeroedRecord) => { return zeroedRecord.Nickname } ) );
+        let newNumberOfOccupiedSeats = sessionControl.PlayingGamers.length;
+        let params = {
+            "TableName": sessionControlTable,
+            "Key": { "SessionId": sessionControl.SessionId },
+            "UpdateExpression": "SET OccupiedSeats = :n, PlayingGamers = :p, FinishedGamers = :f",
+            "ConditionExpression": "OccupiedSeats = :o",
+            'ExpressionAttributeValues': {
+                ":n": newNumberOfOccupiedSeats,
+                ":p": sessionControl.PlayingGamers,
+                ":o": sessionControl.OccupiedSeats,
+                ":f": sessionControl.FinishedGamers
+            }
+        };
+        let updateCommand = new UpdateCommand(params);
+        let updateCommandResponse = await DynamoDB.send(updateCommand);
+        console.log('updateCommandResponse');
+        console.log(updateCommandResponse)
+        result = "Success deallocating "+ zeroeds.length +" users.";
     }
+    return result;
 };
 
 const updateTopxTable = function(sessionData,callback) {
@@ -182,22 +175,26 @@ const preProcessRecords = function(sessionInfo,kinesisRecords) {
     return result;
 };
 
-const processKinesisRecords =  function(kinesisRecords,callback) {
+const processKinesisRecords =  async function(kinesisRecords) {
     var sessionData = null;
     // Read session from Systems Manager
-	readSessionParameter( function(rspError, sessionInfo) {
-   		if (rspError) callback( new Error("Error getting session."), rspError);
-		else {
-		    var preprocessedRecords = preProcessRecords(sessionInfo,kinesisRecords);
-		    console.log('# of READY TO PROCESS records:',preprocessedRecords.ReadyToProcessRecords.length);
-            console.log('# of FAILED records:',preprocessedRecords.FailedRecords.length);
-            preprocessedRecords.FailedRecords.forEach( (r) => {
-               reportInvalidRecordToDLQ(r); 
-            });
-            console.log('# of WRONG SESSION records:',preprocessedRecords.WrongSessionRecords.length);
-            preprocessedRecords.WrongSessionRecords.forEach( (r) => {
-               reportInvalidRecordToDLQ(r); 
-            });
+	let sessionInfo = await readSessionParameter();
+	console.log(sessionInfo);
+	console.log('sessionInfo');
+	if (sessionInfo instanceof Error) {
+	    result = sessionInfo;
+	} 
+	else {
+        let preprocessedRecords = preProcessRecords(sessionInfo,kinesisRecords);
+	    console.log('# of READY TO PROCESS records:',preprocessedRecords.ReadyToProcessRecords.length);
+        console.log('# of FAILED records:',preprocessedRecords.FailedRecords.length);
+        preprocessedRecords.FailedRecords.forEach( (r) => {
+           reportInvalidRecordToDLQ(r); 
+        });
+        console.log('# of WRONG SESSION records:',preprocessedRecords.WrongSessionRecords.length);
+        preprocessedRecords.WrongSessionRecords.forEach( (r) => {
+           reportInvalidRecordToDLQ(r); 
+        });
             console.log('# of AFTER SESSION CLOSING (discarded) records:',preprocessedRecords.AfterSessionClosingRecords.length);
             if (preprocessedRecords.ReadyToProcessRecords.length == 0) callback(null,sessionInfo);
 		    else {
@@ -263,38 +260,40 @@ const processKinesisRecords =  function(kinesisRecords,callback) {
 	});
 };
 
-exports.handler = (event, context, callback) => {
+export const handler = async (event,context) => {
     console.log('START TIME:',new Date());
     console.log("# of records RECEIVED:",event.Records.length);
     console.log(JSON.stringify(event));
+    let response = null;
     if (event.Records) {
         /*
         If event.Records exists, then the request is coming from Kinesis-Lambda integration
         */
-        processKinesisRecords(event.Records,function(err,data) {
-            var response = null;
-            if (err) {
-                console.log('Error in processKinesisRecords');
-                console.log('-------- Nature of error ---------');
-                console.log(err);
-                console.log('--------- Error details ----------');
-                console.log(data);
-                response = {
-                    statusCode: 200,
-                    body: JSON.stringify({
-                        "Error" : err,
-                        "Details" : data
-                    })
-                };
-            } else {
-                response = {
-                    statusCode: 200,
-                    body: JSON.stringify(data)
-                };
-            }
-            console.log('RESPONSE:',response);
-            console.log('END TIME:',new Date());
-            callback(null, response);
-        });       
-    } 
+        let kinesisResult = await processKinesisRecords(event.Records);
+        console.log('kinesisResult');
+        console.log(kinesisResult);
+        if (kinesisResult instanceof Error) 
+            response = {
+                statusCode: 500,
+                body: JSON.stringify({
+                    "Error" : kinesisResult.message,
+                    "Details" : kinesisResult
+                })
+            };
+        else 
+            response = {
+                statusCode: 200,
+                body: JSON.stringify(kinesisResult)
+            };
+    } else {
+        let error = new Error("Invalid integration");
+        response = {
+            statusCode: 400,
+            body: JSON.stringify(error)
+        };
+    }
+    console.log('response');
+    console.log(response);
+    console.log('END TIME:',new Date());
+    return response;
 };
