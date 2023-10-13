@@ -37,19 +37,34 @@ export class ContentDeliveryLayer extends ResourceAwareConstruct {
             ]
         });
         
-                
-        new BucketPolicy(this, props.getApplicationName()+'AppBucketPolicy', {
-            bucket : appBucket,
-        }).document.addStatements(new IAM.PolicyStatement({
+        let cloudFrontOAIStatement = new IAM.PolicyStatement({
+            sid: "CloudFrontOAIStatement",
             actions : [ "s3:GetObject" ],
             effect :  IAM.Effect.ALLOW,
             resources: [
                 appBucket.arnForObjects("*")
             ],
             principals : [ new IAM.ArnPrincipal("arn:aws:iam::cloudfront:user/CloudFront Origin Access Identity "+cloudFrontAccessIdentity.originAccessIdentityId) ]
-        })
-        );
-
+        });
+        
+       let cloudFrontOACStatement = new IAM.PolicyStatement({
+            sid : "cloudFrontOACStatement",
+            principals : [ new IAM.ServicePrincipal("cloudfront.amazonaws.com") ],
+            actions : [ "s3:GetObject" ],
+            effect :  IAM.Effect.ALLOW,
+            resources: [
+                appBucket.arnForObjects("*")
+            ]
+       });
+       cloudFrontOACStatement.addCondition('StringEquals',{ 'AWS:SourceArn': `arn:aws:cloudfront::${props.accountId}:distribution/${distribution.distributionId}` });
+       let bucketPolicy = new BucketPolicy(this, props.getApplicationName()+'AppBucketPolicy', {
+            bucket : appBucket,
+       });
+       bucketPolicy.node.addDependency(distribution);
+       bucketPolicy.document.addStatements(cloudFrontOACStatement);
+       bucketPolicy.document.addStatements(cloudFrontOAIStatement);
+       
+       
         this.addResource("cdndomain",distribution.distributionDomainName);
     }
 }

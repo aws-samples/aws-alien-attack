@@ -3,7 +3,7 @@
 import { Construct } from 'constructs';
 import { Duration } from 'aws-cdk-lib';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import { Function , Code, Runtime } from 'aws-cdk-lib/aws-lambda'
+import { Function , Code, Runtime, Architecture } from 'aws-cdk-lib/aws-lambda'
 import { Role, Effect, PolicyStatement, FederatedPrincipal, ServicePrincipal } from 'aws-cdk-lib/aws-iam';
 
 import Cognito = require('aws-cdk-lib/aws-cognito');
@@ -254,8 +254,9 @@ export class SecurityLayer extends ResourceAwareConstruct {
         ));
         this.postRegistrationTriggerFunction =
             new Function(this, this.properties.getApplicationName() + 'PostRegistration', {
-                runtime: Runtime.NODEJS_16_X,
+                runtime: Runtime.NODEJS_18_X,
                 handler: 'index.handler',
+                architecture: Architecture.ARM_64,
                 code: Code.fromAsset(path.join(lambdasLocation, 'postRegistration'))
                 , functionName: this.properties.getApplicationName() + 'PostRegistrationFn'
                 , description: 'This function adds an user to the Players group after confirmation'
