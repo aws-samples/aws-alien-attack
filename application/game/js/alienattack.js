@@ -559,8 +559,8 @@ function RegisterSuccessState() {
     this.modal = new Modal(document.getElementById("modalDialog"));
     var modalDialogString =
         `<h2>AlienAttack:REGISTER - SUCCESS</h2>
-         <h3>You was successfully registered.</h3>
-         <h3>Check your e-mail and login.</h3>`;
+         <h3>You are registered!</h3>
+         <h3>Check your email for login details.</h3>`;
     this.modal.show(modalDialogString, { actionOnClose: "game.modalClose()" });
 }
 
@@ -628,7 +628,7 @@ LoginState.prototype.login = function () {
                     game.modalClose('MOVE_TO_LOGIN_AGAIN');
                 }
                 else {
-                    alert("Login sucessfull to user " + username);
+                    alert("Hi " + username + "! You are logged in to Alien Attack.");
                     game.loggedin = true;
                     game.username = username;
                     game.userWantsRegisterOrLogin = false;
