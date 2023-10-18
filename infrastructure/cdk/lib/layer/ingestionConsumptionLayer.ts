@@ -15,6 +15,7 @@ import Lambda = require('aws-cdk-lib/aws-lambda');
 import Logs = require('aws-cdk-lib/aws-logs');
 import { KinesisEventSource } from 'aws-cdk-lib/aws-lambda-event-sources';
 import { PolicyDocument, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import { RemovalPolicy } from 'aws-cdk-lib';
 
 export class IngestionConsumptionLayer extends ResourceAwareConstruct {
 
@@ -66,7 +67,8 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             let firehoseName = props.getApplicationName() + '_Firehose';
             let firehoseLogGroupName = '/aws/kinesisfirehose/' + firehoseName;
             let firehoseLogGroup = new Logs.LogGroup(this,props.getApplicationName()+'firehoseloggroup', {
-                logGroupName : firehoseLogGroupName
+                logGroupName : firehoseLogGroupName,
+                removalPolicy : RemovalPolicy.DESTROY
             });
             new Logs.LogStream(this,props.getApplicationName()+'firehoselogstream', {
                 logGroup : firehoseLogGroup,
