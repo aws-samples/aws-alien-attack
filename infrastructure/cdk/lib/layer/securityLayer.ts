@@ -114,6 +114,8 @@ export class SecurityLayer extends ResourceAwareConstruct {
                 userPassword: true
             }
         });
+        let resetpassurl = `https://${this.properties.getApplicationName().toLowerCase()}.auth.${this.properties.region}.amazoncognito.com/forgotPassword?client_id=${this.userPoolClient.userPoolClientId}&response_type=code&redirect_uri=https%3A%2F%2Fexample.com`;
+        this.addResource('security.resetpassurl',resetpassurl);
     }
 
     private createIdentityPool() {

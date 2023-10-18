@@ -28,13 +28,13 @@ case $OSNAME in
         sudo yum update -y
         node_version="v18.17.1"
         tsc_version="5.0.3"
-        cdk_version="2.91.0" 
+        cdk_version="2.101.1" 
         ;;
    UBUNTU)
         sudo apt-get update -y
         node_version="v18.17.1"
         tsc_version="5.0.3"
-        cdk_version="2.91.0" 
+        cdk_version="2.101.1" 
         ;;
    OSX)
         echo "This is Mac OSX"

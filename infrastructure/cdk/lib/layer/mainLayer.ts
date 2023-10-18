@@ -111,6 +111,12 @@ export class MainLayer extends ResourceAwareStack {
       exportName : this.properties.getApplicationName().toLocaleLowerCase()+":envname"
     });
 
+    new CfnOutput(this, "resetpassurl", {
+      description : "Reset password URL",
+      value : securityLayer.getResource('security.resetpassurl'),
+      exportName : this.properties.getApplicationName().toLocaleLowerCase()+":resetpassurl"
+    });
+
     if (cdnLayer) {
       new CfnOutput(this, "url", {
         description : "Cloudfront domain for the website (Cloudfront distribution)",
