@@ -51,9 +51,10 @@ title "DEPLOYING THE FRONT-END FOR THE ENVIRONMENT $envnameuppercase"
 #-------------------------------------------
 # Retrieving parameters from CloudFormation
 #-------------------------------------------
-apigtw=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && contains(Name,\`apigtw\`)].Value | [0]' | xargs -I {} echo {}"))
-region=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && contains(Name,\`region\`)].Value | [0]' | xargs -I {} echo {}"))
-url=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && contains(Name,\`url\`)].Value | [0]' | xargs -I {} echo {}"))
+apigtw=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && Name==\`${envnamelowercase}:apigtw\`].Value | [0]' | xargs -I {} echo {}"))
+region=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && Name==\`${envnamelowercase}:region\`].Value | [0]' | xargs -I {} echo {}"))
+url=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && Name==\`${envnamelowercase}:url\`].Value | [0]' | xargs -I {} echo {}"))
+resetpassurl=$(eval $(echo "aws cloudformation list-exports --query 'Exports[?contains(ExportingStackId,\`$envname\`) && Name==\`${envnamelowercase}:resetpassurl\`].Value | [0]' | xargs -I {} echo {}"))
 #-------------------------------------------
 # UPDATING /application/resources/js/awsconfig.js
 #-------------------------------------------
@@ -63,7 +64,8 @@ const DEBUG = true;
 const AWS_CONFIG = {
     "region" : "$region",
     "API_ENDPOINT" : "$apigtw",
-    "APPNAME" : "$envnameuppercase"
+    "APPNAME" : "$envnameuppercase",
+    "RESET_PASS_URL" : "$resetpassurl"
 };
 END
 more ./../application/resources/js/awsconfig.js
