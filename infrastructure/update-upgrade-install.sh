@@ -26,18 +26,21 @@ UPDATE_TYPE="AUTOMATIC"
 case $OSNAME in
    AMAZON)
         sudo yum update -y
-        node_version="v16.20.0"
+        node_version="v18.17.1"
         tsc_version="5.0.3"
-        cdk_version="2.72.0" ;;
+        cdk_version="2.91.0" 
+        ;;
    UBUNTU)
         sudo apt-get update -y
         node_version="v18.17.1"
         tsc_version="5.0.3"
-        cdk_version="2.91.0" ;;
+        cdk_version="2.91.0" 
+        ;;
    OSX)
         echo "This is Mac OSX"
         echo "You need to update it by hand"
-        UPDATE_TYPE="BY_HAND" ;;
+        UPDATE_TYPE="BY_HAND" 
+        ;;
     *)
         echo "Invalid OS"
         echo "You need to update it by hand"
@@ -72,7 +75,7 @@ fi
 echo --
 echo Installing CDK
 # Forcing the removal of the latest version
-rm -rf ~/.nvm/versions/node/v$node_version/bin/cdk
+rm -rf ~/.nvm/versions/node/$node_version/bin/cdk
 #installing it
 npm install -g aws-cdk@$cdk_version
 echo --
