@@ -319,7 +319,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             }
             , requestModels: undefined
             , integration: {
-                passthroughBehavior: 'WHEN_NO_MATCH'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , integrationHttpMethod: 'POST'
                 , type: 'AWS'
                 , uri: 'arn:aws:apigateway:' + props.region + ':ssm:action/GetParameter'
@@ -360,7 +360,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'WHEN_NO_MATCH'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': '{\"statusCode\": 200}'
@@ -413,7 +413,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
           }
           , requestModels : undefined
           , integration: {
-              passthroughBehavior: 'WHEN_NO_MATCH'
+              passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
               , integrationHttpMethod: 'POST'
               , type: 'AWS'
               , uri: 'arn:aws:apigateway:' + props.region + ':ssm:action/GetParameter'
@@ -454,7 +454,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
           , authorizationType: APIGTW.AuthorizationType.NONE
           , httpMethod: 'OPTIONS'
           , integration: {
-              passthroughBehavior: 'WHEN_NO_MATCH'
+              passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
               , type: 'MOCK'
               , requestTemplates: {
                   'application/json': '{\"statusCode\": 200}'
@@ -547,7 +547,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
                         '"/' + props.getApplicationName().toLowerCase() + '/identitypoolid"' +
                         ']}'
                 }
-                , passthroughBehavior: 'WHEN_NO_TEMPLATES'
+                , passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_TEMPLATES
                 , integrationResponses: [
                     {
                         statusCode: '200'
@@ -592,7 +592,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'when_no_match'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': `{\"statusCode\": 200}`
@@ -645,7 +645,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizerId: authorizer.ref
             , httpMethod: 'POST'
             , integration: {
-                passthroughBehavior: 'WHEN_NO_MATCH'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , integrationHttpMethod: 'POST'
                 , type: 'AWS_PROXY'
                 , uri: 'arn:aws:apigateway:' + props.region + ':lambda:path/2015-03-31/functions/' + lambdaAllocate.functionArn + '/invocations'
@@ -675,7 +675,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'WHEN_NO_MATCH'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': `{\"statusCode\": 200}`
@@ -747,7 +747,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'when_no_match'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': `{\"statusCode\": 200}`
@@ -822,7 +822,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
                 , requestParameters: {
                     'integration.request.querystring.sessionId': 'method.request.querystring.sessionId'
                 }
-                , passthroughBehavior: 'WHEN_NO_TEMPLATES'
+                , passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_TEMPLATES
                 , requestTemplates: {
                     'application/json': `{
                         "TableName" : "`+ (<Table>props.getParameter('table.sessiontopx')).tableName + `",
@@ -881,7 +881,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'when_no_match'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': `{\"statusCode\": 200}`
@@ -948,7 +948,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
                 , type: 'AWS'
                 , uri: 'arn:aws:apigateway:' + props.region + ':kinesis:action/PutRecord'
                 , credentials: apirole.roleArn
-                , passthroughBehavior: 'WHEN_NO_TEMPLATES'
+                , passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_TEMPLATES
                 , requestTemplates: {
                     'application/json':
                         `#set($inputRoot = $input.path('$'))
@@ -987,7 +987,7 @@ export class IngestionConsumptionLayer extends ResourceAwareConstruct {
             , authorizationType: APIGTW.AuthorizationType.NONE
             , httpMethod: 'OPTIONS'
             , integration: {
-                passthroughBehavior: 'when_no_match'
+                passthroughBehavior: APIGTW.PassthroughBehavior.WHEN_NO_MATCH
                 , type: 'MOCK'
                 , requestTemplates: {
                     'application/json': `{\"statusCode\": 200}`

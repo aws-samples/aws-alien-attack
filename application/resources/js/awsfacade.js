@@ -205,6 +205,7 @@ class AWSFacade {
         if (!config.region) config.region = 'us-east-1';
         AWS.config.update({ "region": config.region });
         this.cognitoFacade = null;
+        this.resetPassswordUrl = config.RESET_PASS_URL;
         this.init();
     }
 

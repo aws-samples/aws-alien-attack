@@ -578,7 +578,8 @@ function LoginState() {
         <label>Password</label>
         <input type="password" name="password" id="loginDiv.password" />
         <br>
-        <input type="button" class="button" value="LOGIN" onclick="game.modalClose('DO_LOGIN')"/>`;
+        <input type="button" class="button" value="LOGIN" onclick="game.modalClose('DO_LOGIN')"/>
+        Forgot your password? Reset it <a href="${game.awsfacade.resetPassswordUrl}" target="_blank">here</a>`;
     this.modal.show(modalDialogString, { actionOnClose: "game.modalClose('CLOSE')" });
 }
 
