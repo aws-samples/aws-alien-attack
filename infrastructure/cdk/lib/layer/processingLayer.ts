@@ -11,8 +11,6 @@ import { ManagedPolicy } from 'aws-cdk-lib/aws-iam';
 
 import SQS = require('aws-cdk-lib/aws-sqs');
 
-import { StringParameter } from 'aws-cdk-lib/aws-ssm';
-
 
 import path = require('path');
 
@@ -82,7 +80,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable) {
             let createdFunction: Lambda.Function =
                 new Lambda.Function(this, this.properties.getApplicationName() + 'AllocateGamerFn', {
-                    runtime:Lambda.Runtime.NODEJS_18_X,
+                    runtime: new Lambda.Runtime('nodejs20.x'),
                     architecture: Lambda.Architecture.ARM_64,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation,'allocateGamer')),
@@ -154,7 +152,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable) {
             let createdFunction: Lambda.Function =
                 new Lambda.Function(this, this.properties.getApplicationName() + 'DeallocateGamerFn', {
-                    runtime:Lambda.Runtime.NODEJS_18_X,
+                    runtime: new Lambda.Runtime('nodejs20.x'),
                     architecture: Lambda.Architecture.ARM_64,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation,'deallocateGamer')),
@@ -237,7 +235,7 @@ export class ProcessingLayer extends ResourceAwareConstruct {
         if (sessionParameter && sessionControlTable && sessionTopX && sessionTable) {
             let createdFunction: Lambda.Function =
                 new Lambda.Function(this, this.properties.getApplicationName() + 'ScoreboardFn', {
-                    runtime:Lambda.Runtime.NODEJS_18_X,
+                    runtime: new Lambda.Runtime('nodejs20.x'),
                     architecture: Lambda.Architecture.ARM_64,
                     handler: 'index.handler',
                     code: Lambda.Code.fromAsset(path.join(lambdasLocation,'scoreboard')),

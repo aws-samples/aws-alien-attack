@@ -26,9 +26,9 @@ UPDATE_TYPE="AUTOMATIC"
 case $OSNAME in
    AMAZON)
         sudo yum update -y
-        node_version="v18.17.1"
-        tsc_version="5.0.3"
-        cdk_version="2.101.1" 
+        node_version="v20.5.1"
+        tsc_version="5.1.6"
+        cdk_version="2.150.0" 
         ;;
    UBUNTU)
         sudo apt-get update -y

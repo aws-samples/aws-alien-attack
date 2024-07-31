@@ -256,7 +256,7 @@ export class SecurityLayer extends ResourceAwareConstruct {
         ));
         this.postRegistrationTriggerFunction =
             new Function(this, this.properties.getApplicationName() + 'PostRegistration', {
-                runtime: Runtime.NODEJS_18_X,
+                runtime:  new Runtime('nodejs20.x'),
                 handler: 'index.handler',
                 architecture: Architecture.ARM_64,
                 code: Code.fromAsset(path.join(lambdasLocation, 'postRegistration'))

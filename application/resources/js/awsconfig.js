@@ -4,4 +4,4 @@ const AWS_CONFIG = {
     "API_ENDPOINT" : "<API Gateway invoke URL>/v1/",
     "APPNAME" : "<name of the application>",
     "RESET_PASS_URL" : "./../error.html"
-}
+};
