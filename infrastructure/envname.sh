@@ -25,6 +25,6 @@ randomcode=$(openssl rand -hex 3)
 ### Defining envname - envname will be, by default, in uppercase
 envname=$(echo $initials"aaa"$randomcode | tr 'a-z' 'A-Z')
 envnameLowercase=$(echo $envname | tr 'A-Z' 'a-z' )
-echo export envname=$envname >> ~/.bash_profile
-echo export envnameLowercase=$envnameLowercase >> ~/.bash_profile
+echo export envname=$envname >> ~/.bashrc
+echo export envnameLowercase=$envnameLowercase >> ~/.bashrc
 echo "Your environment name was defined as"$setColor $envname $resetColor
