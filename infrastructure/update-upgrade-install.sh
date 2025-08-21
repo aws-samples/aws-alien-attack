@@ -96,7 +96,7 @@ echo --
 echo Bootstraping CDK
 account=$(aws sts get-caller-identity --output text --query 'Account')
 region=$(aws configure get region)
-cdk bootstrap $account/$region
+cdk bootstrap aws://$account/$region
 echo --
 echo Installing CDK dependencies
 cd cdk
