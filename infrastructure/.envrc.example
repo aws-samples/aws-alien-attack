@@ -1,0 +1,20 @@
+# AWS Alien Attack - direnv configuration
+# This file automatically activates the isolated environment when you cd into this directory
+# Requires direnv: https://direnv.net/
+
+# Get project root
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Source the activation script
+source "$PROJECT_ROOT/infrastructure/activate-env.sh"
+
+# Load environment variables if they exist
+if [ -f "$HOME/.bashrc" ]; then
+    # Source envname variables if they exist
+    if grep -q "export envname=" "$HOME/.bashrc" 2>/dev/null; then
+        export envname=$(grep "export envname=" "$HOME/.bashrc" | cut -d'=' -f2)
+        export envnameLowercase=$(grep "export envnameLowercase=" "$HOME/.bashrc" | cut -d'=' -f2)
+    fi
+fi
+
+echo "✓ Isolated environment activated (via direnv)"

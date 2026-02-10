@@ -49,14 +49,45 @@ setApplicationProperty("kinesisintegration","Kinesis Data Streams integration");
 // FOR KINESIS FIREHOSE
 setApplicationProperty("firehose","Kinesis Firehose");
 
+// Getting context for importing existing Cognito resources
+let importCognitoName = app.node.tryGetContext('importCognito');
 
 Utils.checkforExistingBuckets(initProps.getBucketNames())
     .then((listOfExistingBuckets) => {
         if (listOfExistingBuckets && listOfExistingBuckets.length > 0)
             console.log("# The following buckets are NOT being created because they already exist: ", listOfExistingBuckets);
         initProps.addParameter('existingbuckets', listOfExistingBuckets);
-        new MainLayer(app, initProps.getApplicationName(), initProps);
-})
+        
+        // Check for existing Cognito resources if import name is provided
+        if (importCognitoName) {
+            console.log('# Checking for existing Cognito resources with name:', importCognitoName);
+            return Promise.all([
+                Utils.findUserPoolByName(importCognitoName),
+                Utils.findIdentityPoolByName(importCognitoName)
+            ]).then(([userPoolId, identityPoolId]) => {
+                if (userPoolId) {
+                    console.log('# Importing existing User Pool:', userPoolId);
+                    initProps.addParameter('importUserPoolId', userPoolId);
+                } else {
+                    console.log('# User Pool not found, will create new one');
+                }
+                
+                if (identityPoolId) {
+                    console.log('# Importing existing Identity Pool:', identityPoolId);
+                    initProps.addParameter('importIdentityPoolId', identityPoolId);
+                } else {
+                    console.log('# Identity Pool not found, will create new one');
+                }
+                
+                return initProps;
+            });
+        }
+        
+        return Promise.resolve(initProps);
+    })
+    .then((props) => {
+        new MainLayer(app, props.getApplicationName(), props);
+    })
     .catch((errorList) => {
         console.log(errorList);
-});
+    });

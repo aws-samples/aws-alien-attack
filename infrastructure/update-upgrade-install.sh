@@ -28,18 +28,19 @@ case $OSNAME in
         sudo yum update -y
         node_version="v20.5.1"
         tsc_version="5.1.6"
-        cdk_version="2.150.0" 
+        cdk_version="latest" 
         ;;
    UBUNTU)
         sudo apt-get update -y
         node_version="v18.17.1"
         tsc_version="5.0.3"
-        cdk_version="2.101.1" 
+        cdk_version="latest" 
         ;;
    OSX)
         echo "This is Mac OSX"
-        echo "You need to update it by hand"
-        UPDATE_TYPE="BY_HAND" 
+        node_version="v20.5.1"
+        tsc_version="5.1.6"
+        cdk_version="latest"
         ;;
     *)
         echo "Invalid OS"
@@ -50,6 +51,14 @@ if [[ "$UPDATE_TYPE" == "BY_HAND" ]]; then
    echo "Follow the instructions to install CDK version >= 2.72.0 <= 2.91.0"
    exit 0
 fi
+
+# Check if we're in the project root with isolated environment
+PROJECT_ROOT=""
+if [[ -f "./activate-env.sh" && -f "../.nvmrc" ]]; then
+    PROJECT_ROOT="$(cd .. && pwd)"
+    echo "Detected isolated environment at: $PROJECT_ROOT"
+fi
+
 echo --
 echo Configuring your $OSNAME
 echo --
@@ -73,25 +82,50 @@ echo Configuring nodejs
 if [[ $(nvm ls | grep $node_version) == "" ]]; then
   nvm install $node_version
   nvm use $node_version
-  nvm alias latest $node_version
-  nvm alias default latest
+  # Only set default alias if not in isolated environment
+  if [[ -z "$PROJECT_ROOT" ]]; then
+    nvm alias latest $node_version
+    nvm alias default latest
+  fi
 else
   nvm use $node_version
-  nvm alias latest $node_version
-  nvm alias default latest
+  # Only set default alias if not in isolated environment
+  if [[ -z "$PROJECT_ROOT" ]]; then
+    nvm alias latest $node_version
+    nvm alias default latest
+  fi
 fi
 
 echo --
 echo Installing Typescript
-if [[ $( npm list -g typescript | grep $tsc_version ) == "" ]]; then
-  npm install -g typescript@$tsc_version
+if [[ -n "$PROJECT_ROOT" ]]; then
+  # Use project-local npm for isolated environment
+  if [[ $( NPM_CONFIG_PREFIX="$PROJECT_ROOT/.npm-global" npm list -g typescript 2>/dev/null | grep $tsc_version ) == "" ]]; then
+    echo "Installing TypeScript $tsc_version in isolated environment"
+    NPM_CONFIG_PREFIX="$PROJECT_ROOT/.npm-global" npm install -g typescript@$tsc_version
+  else
+    echo "TypeScript $tsc_version already installed in isolated environment"
+  fi
+else
+  # Standard global installation
+  if [[ $( npm list -g typescript | grep $tsc_version ) == "" ]]; then
+    npm install -g typescript@$tsc_version
+  fi
 fi
 echo --
 echo Installing CDK
-# Forcing the removal of the latest version
-rm -rf ~/.nvm/versions/node/$node_version/bin/cdk
-#installing it
-npm install -g aws-cdk@$cdk_version
+if [[ -n "$PROJECT_ROOT" ]]; then
+  # Use project-local npm for isolated environment
+  echo "Installing CDK $cdk_version in isolated environment"
+  rm -rf "$PROJECT_ROOT/.npm-global/bin/cdk" 2>/dev/null
+  NPM_CONFIG_PREFIX="$PROJECT_ROOT/.npm-global" NPM_CONFIG_USERCONFIG="$PROJECT_ROOT/.npmrc" npm install -g aws-cdk@$cdk_version
+else
+  # Standard global installation
+  # Forcing the removal of the latest version
+  rm -rf ~/.nvm/versions/node/$node_version/bin/cdk
+  #installing it
+  npm install -g aws-cdk@$cdk_version
+fi
 echo --
 echo Bootstraping CDK
 account=$(aws sts get-caller-identity --output text --query 'Account')
@@ -105,4 +139,8 @@ echo --
 # THIS IS FOR FUTURE CONFIGURATION OF AWS SDK v2
 #echo Installing Lambda dependencies
 #find ./lambdas -name 'package.json' -not -path '*/node_modules*' -execdir npm install \;
-[[ $(grep "nvm use latest" ~/.bash_profile) ]] || echo nvm use latest >> ~/.bash_profile
+
+# Only modify bash_profile if not in isolated environment
+if [[ -z "$PROJECT_ROOT" ]]; then
+  [[ $(grep "nvm use latest" ~/.bash_profile) ]] || echo nvm use latest >> ~/.bash_profile
+fi

@@ -10,3 +10,4 @@ infrastructure/cdk/test/*.js
 .DS_Store
 infrastructure/cdk/test/*.js
 infrastructure/cdk/test/simple.test.js
+.npm-global/

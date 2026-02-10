@@ -2,7 +2,8 @@
 // SPDX-License-Identifier: MIT-0
 import { Construct } from 'constructs';
 import { ResourceAwareConstruct, IParameterAwareProps } from './../resourceawarestack'
-import { CloudFrontWebDistribution, OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import { Distribution, OriginAccessIdentity } from 'aws-cdk-lib/aws-cloudfront';
+import { S3Origin } from 'aws-cdk-lib/aws-cloudfront-origins';
 import { Bucket, BucketPolicy} from 'aws-cdk-lib/aws-s3';
 import IAM = require('aws-cdk-lib/aws-iam');
 
@@ -24,17 +25,12 @@ export class ContentDeliveryLayer extends ResourceAwareConstruct {
         });
         appBucket.grantRead(cloudFrontAccessIdentity);
         
-        
-        let distribution = new CloudFrontWebDistribution(this, props.getApplicationName(),{
-            originConfigs : [
-                {
-                    s3OriginSource : {
-                        s3BucketSource: appBucket,
-                        originAccessIdentity : cloudFrontAccessIdentity
-                    },
-                    behaviors : [ {isDefaultBehavior: true}]
-                }
-            ]
+        let distribution = new Distribution(this, props.getApplicationName(), {
+            defaultBehavior: {
+                origin: new S3Origin(appBucket, {
+                    originAccessIdentity: cloudFrontAccessIdentity
+                })
+            }
         });
         
         let cloudFrontOAIStatement = new IAM.PolicyStatement({

@@ -1,6 +1,8 @@
 // Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
 // SPDX-License-Identifier: MIT-0
-import AWS = require('aws-sdk');
+import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3';
+import { CognitoIdentityProviderClient, ListUserPoolsCommand } from '@aws-sdk/client-cognito-identity-provider';
+import { CognitoIdentityClient, ListIdentityPoolsCommand } from '@aws-sdk/client-cognito-identity';
 import crypto = require('crypto');
 import fs = require('fs');
 import path = require('path');
@@ -9,20 +11,57 @@ import path = require('path');
 export class Utils {
 
     static async bucketExists(bucketName: string): Promise<boolean> {
-        return new Promise<boolean>((resolve, reject) => {
-            let params = {
-                Bucket: bucketName
+        const s3Client = new S3Client({});
+        try {
+            await s3Client.send(new HeadBucketCommand({ Bucket: bucketName }));
+            return true;
+        } catch (err: any) {
+            if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) {
+                return false;
             }
-            let sdkS3 = new AWS.S3();
-            sdkS3.headBucket(params, (err, _) => {
-                if (err) {
-                    if (err.code == 'NotFound') resolve(false);
-                    else reject(err);
+            throw err;
+        }
+    }
+
+    static async findUserPoolByName(poolName: string): Promise<string | null> {
+        const cognitoClient = new CognitoIdentityProviderClient({});
+        try {
+            const command = new ListUserPoolsCommand({ MaxResults: 60 });
+            const response = await cognitoClient.send(command);
+            
+            if (response.UserPools) {
+                const pool = response.UserPools.find(p => p.Name === poolName);
+                if (pool && pool.Id) {
+                    console.log(`Found User Pool: ${poolName} with ID: ${pool.Id}`);
+                    return pool.Id;
                 }
-                else resolve(true);
-            });
-        })
-    };
+            }
+            return null;
+        } catch (err: any) {
+            console.error('Error finding User Pool:', err.message);
+            throw err;
+        }
+    }
+
+    static async findIdentityPoolByName(poolName: string): Promise<string | null> {
+        const cognitoIdentityClient = new CognitoIdentityClient({});
+        try {
+            const command = new ListIdentityPoolsCommand({ MaxResults: 60 });
+            const response = await cognitoIdentityClient.send(command);
+            
+            if (response.IdentityPools) {
+                const pool = response.IdentityPools.find(p => p.IdentityPoolName === poolName);
+                if (pool && pool.IdentityPoolId) {
+                    console.log(`Found Identity Pool: ${poolName} with ID: ${pool.IdentityPoolId}`);
+                    return pool.IdentityPoolId;
+                }
+            }
+            return null;
+        } catch (err: any) {
+            console.error('Error finding Identity Pool:', err.message);
+            throw err;
+        }
+    }
 
     static async checkforExistingBuckets(listOfBuckets: string[]) {
 

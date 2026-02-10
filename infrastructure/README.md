@@ -2,6 +2,28 @@
 
 These are the resources that you need to deploy the back-end for AWS Alien Attack. The deployment will provide the required parameters for the configuration of the [front-end applications](./../application): the game console, and the manager console.
 
+## Quick Reference
+
+**First time setup:**
+```bash
+cd infrastructure
+source ./config.sh
+```
+
+**Every new shell session:**
+```bash
+cd infrastructure
+source ./activate-env.sh
+```
+
+**Optional - Automatic activation with direnv:**
+```bash
+cp .envrc.example .envrc
+direnv allow
+```
+
+---
+
 # What is going to be deployed?
 
 The architecture to be deployed is the one pictured below. 
@@ -18,7 +40,7 @@ We recommend you to follow the step-by-step guidance on the [AWS Alien Attack Wo
 
 However, if you want to do it without going through the workshop, we provide here the steps.
 
-The back-end deployment is supported by CDK. To make the things easier - and to not affect your computer by installing tools that you migh not need, we recommend Cloud9 or another Amazon Linux instance which you can access via SSH.
+The back-end deployment is supported by CDK. This project uses an isolated environment to prevent conflicts with your existing tools. All dependencies (Node.js, CDK, TypeScript) will be installed in a project-specific directory and won't affect your system configuration. When you're done working on this project, simply navigate away - your system remains unchanged.
 
 
 1. Be sure that your machine has the permissions in place to deploy the Cloudformation template.
@@ -37,6 +59,7 @@ cd infrastructure
 source ./config.sh
 ~~~
 
+
 5. Get into the *cdk* folder
 
 ~~~
@@ -48,6 +71,17 @@ cd cdk
 ~~~
 npm run build
 ~~~
+
+**Important:** If you open additional terminal/shell sessions to work on this project (e.g., to run `npm run watch` in parallel), you must activate the isolated environment in each new shell:
+
+~~~
+cd infrastructure
+source ./activate-env.sh
+~~~
+
+This ensures each shell uses the correct Node.js version, CDK, and npm configuration.
+
+**Tip for automatic activation:** If you use [direnv](https://direnv.net/), copy `.envrc.example` to `.envrc` and run `direnv allow`. The environment will activate automatically when you cd into the infrastructure directory.
 
 7. (Optional) Check the generated CloudFormation template.
 
@@ -107,9 +141,9 @@ If you have done the deployment by yourself, be sure of undoing the changes that
 cdk destroy -c envname=$envname
 ~~~
 
-Be aware that, in any case, the S3 buckets will not be removed. You need to remove them by hand.
+Be aware that, in any case, the S3 buckets and the Cognito resources (UserPool and IdentityPool) will not be removed. You need to remove them by hand.
 
-**`WARNING:`** Deleting these buckets is an irreversible operation. 
+**`WARNING:`** Deleting these resources is an irreversible operation. 
 
 To remove the **RAW bucket** (used to store the incoming data), execute the following command:
 ~~~
@@ -119,4 +153,14 @@ aws s3 rb s3://${envnameLowercase}.raw --force
 To remove the **APP bucket** (used to store the application), execute the following command:
 ~~~
 aws s3 rb s3://${envnameLowercase}.app --force
+~~~
+
+To remove the **User Pool**, execute the following command:
+~~~
+aws cognito-idp delete-user-pool --user-pool-id $(aws cognito-idp list-user-pools --max-results 60 --query "UserPools[?Name=='$envname'].Id" --output text)
+~~~
+
+To remove the **Identity Pool**, execute the following command:
+~~~
+aws cognito-identity delete-identity-pool --identity-pool-id $(aws cognito-identity list-identity-pools --max-results 60 --query "IdentityPools[?IdentityPoolName=='$envname'].IdentityPoolId" --output text)
 ~~~

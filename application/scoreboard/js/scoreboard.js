@@ -450,7 +450,7 @@ class Scoreboard {
                 tr = table.insertRow(-1);
                 for (var j = 0; j < self.header.length; j++) {
                     var tabCell = tr.insertCell(-1);
-                    tabCell.innerHTML = self.scoreboard[i][self.header[j]];
+                    tabCell.textContent = self.scoreboard[i][self.header[j]];
                 }
             }
 
