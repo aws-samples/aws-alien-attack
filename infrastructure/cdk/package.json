@@ -14,14 +14,14 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
-    "aws-cdk-lib": "^2.240.0",
+    "aws-cdk-lib": "^2.257.0",
     "constructs": "^10.0.0",
     "jest": "^29.1.2",
     "ts-node": "^9.1.1",
     "typescript": "^5.1.6"
   },
   "peerDependencies": {
-    "aws-cdk-lib": "^2.240.0",
+    "aws-cdk-lib": "^2.257.0",
     "constructs": "^10.0.0"
   },
   "jest": {
@@ -34,9 +34,9 @@
     "@aws-sdk/client-cognito-identity-provider": "^3.986.0",
     "@aws-sdk/client-s3": "^3.986.0",
     "@types/node": "^20.5.1",
-    "aws-cdk-lib": "^2.240.0",
     "constructs": "^10.0.0",
-    "uuid": "^14.0.0"
+    "uuid": "^14.0.0",
+    "aws-cdk-lib": "^2.257.0"
   },
   "engines": {
     "node": ">=20.5.1",
