@@ -88,16 +88,7 @@ function adjustLambdaIamRole() {
 }
 EOF
     )
-    if [ "$C9_HOSTNAME" != "" ]; then
-        echo "*******************************************"
-        echo "***********     IMPORTANT       ***********"
-        echo "*******************************************"
-        echo "You are running the workshop under Cloud9."
-        echo "By default, Cloud9 can't do the adjustment to the $roleName"
-        echo "Please go to IAM, find that role and add the following policy, naming it as Invoke-Api-Policy"
-        echo $inlinePolicy
-    else
-        putIamRole=$(cat <<-END 
+    putIamRole=$(cat <<-END 
         aws iam put-role-policy --role-name '$roleName'\
         --policy-name Invoke-Api-Policy\
         --policy-document '$inlinePolicy'
@@ -105,7 +96,6 @@ END
         )
         echo $putIamRole
         eval $putIamRole
-    fi
 }
 
 if [ "$envname" == "" ]; then

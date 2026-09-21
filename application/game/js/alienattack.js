@@ -356,11 +356,6 @@ Game.prototype.publishStatus = function (callback) {
     }
 }
 
-Game.prototype.userHasAlreadyPlayed = function () {
-    let result = this.awsfacade.getUserAttribute("custom:hasAlreadyPlayed");
-    return (result == 1);
-}
-
 /**
  * An user can play if:
  * (1) The user is registered.
@@ -379,8 +374,10 @@ Game.prototype.userCanPlay = function () {
                     canPlay = true;
                     break;
                 case "SINGLE_TRIAL":
-                    if (this.userHasAlreadyPlayed()) canPlay = false;
-                    else canPlay = true;
+                    // The Cognito 'custom:hasAlreadyPlayed' client gate was removed: it was
+                    // never set to '1' anywhere, so it was always a no-op. Replay is enforced
+                    // server-side via SessionControl.FinishedGamers (allocateGamer).
+                    canPlay = true;
                     break;
                 case "TIME_CONSTRAINED":
                     // session deadline will control if user can still play

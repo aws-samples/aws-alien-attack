@@ -87,30 +87,16 @@ function destroyFirehoseIAM() {
         echo We could not find FIREHOSE ROLES containing the names $envNameLowercase or $envNameUppercase
         export FIREHOSEROLE=""
     else
-        if [ "$C9_HOSTNAME" != "" ]; then
-           ## Cloud9 doesn't have permissions to change roles configurations.
-           echo "It seems that you are running the workshop on Cloud9"
-           echo "You are going to need to fix some things by hand."
-           echo " Go to IAM and delete the following role: "
-           if [ "$firehoseRoleNameLC" != "null" ]; then 
-                 echo $firehoseRoleNameLC
-                 export FIREHOSEROLE=$firehoseRoleNameLC
-           else 
-                 echo $firehoseRoleNameUC
-                 export FIREHOSEROLE=$firehoseRoleNameUC
-           fi
-        else 
-            if [ "$firehoseRoleNameLC" != "null" ]; then       
-                    echo The Role $firehoseRoleNameLC still exists in the environment. You need to remove it manually
-                    EXECUTE aws iam delete-role --role-name $firehoseRoleNameLC
-            fi
-            if [ "$firehoseRoleNameUC" != "null" ]; then
-                    # Get the policies and remove it
-                    echo Deleting the role $firehoseRoleNameUC
-                    EXECUTE aws iam delete-role --role-name $firehoseRoleNameUC
-            fi
-            export FIREHOSEROLE=""
+        if [ "$firehoseRoleNameLC" != "null" ]; then       
+                echo The Role $firehoseRoleNameLC still exists in the environment. You need to remove it manually
+                EXECUTE aws iam delete-role --role-name $firehoseRoleNameLC
         fi
+        if [ "$firehoseRoleNameUC" != "null" ]; then
+                # Get the policies and remove it
+                echo Deleting the role $firehoseRoleNameUC
+                EXECUTE aws iam delete-role --role-name $firehoseRoleNameUC
+        fi
+        export FIREHOSEROLE=""
     fi
 }
 
@@ -156,18 +142,11 @@ function destroyWebsocketInlinePolicy() {
         export WEBSOCKETROLE=""
     else
         export WEBSOCKETROLE=$envname"WebSocketSynchronizeStartFn_Role"
-        if [ "$C9_HOSTNAME" != "" ]; then
-           ## Cloud9 doesn't have permissions to change roles configurations.
-           echo "It seems that you are running the workshop on Cloud9"
-           echo "You are going to need to fix some things by hand."
-           echo  Go to IAM and remove the policy $websocketPolicyName from the role $envname"WebSocketSynchronizeStartFn_Role"
-        else 
-            if [ "$websocketPolicyName" != "null" ]; then
-                removeWebsocketPolicy=$(echo "aws iam delete-role-policy --role-name " $envname"WebSocketSynchronizeStartFn_Role --policy-name "$websocketPolicyName)
-                EXECUTE eval $removeWebsocketPolicy
-                echo "Policy $websocketPolicyName removed from $envname WebSocketSynchronizeStartFn_Role"
-                export WEBSOCKETROLE=
-            fi
+        if [ "$websocketPolicyName" != "null" ]; then
+            removeWebsocketPolicy=$(echo "aws iam delete-role-policy --role-name " $envname"WebSocketSynchronizeStartFn_Role --policy-name "$websocketPolicyName)
+            EXECUTE eval $removeWebsocketPolicy
+            echo "Policy $websocketPolicyName removed from $envname WebSocketSynchronizeStartFn_Role"
+            export WEBSOCKETROLE=
         fi
     fi
 }
